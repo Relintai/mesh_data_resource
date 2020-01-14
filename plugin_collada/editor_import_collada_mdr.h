@@ -2,17 +2,17 @@
 #ifndef EDITOR_IMPORT_COLLADA_MDR
 #define EDITOR_IMPORT_COLLADA_MDR
 
-#include "editor/import/editor_import_plugin.h"
-#include "core/ustring.h"
-#include "scene/main/node.h"
-#include "scene/resources/mesh.h"
-#include "scene/3d/mesh_instance.h"
-#include "core/io/resource_saver.h"
 #include "core/array.h"
+#include "core/io/resource_saver.h"
 #include "core/math/basis.h"
 #include "core/math/transform.h"
+#include "core/ustring.h"
+#include "editor/import/editor_import_plugin.h"
+#include "scene/3d/mesh_instance.h"
+#include "scene/main/node.h"
+#include "scene/resources/mesh.h"
 
-#include "mesh_data_resource.h"
+#include "../mesh_data_resource.h"
 #include "editor/import/editor_import_collada.h"
 
 class EditorImportColladaMdr : public EditorImportPlugin {
