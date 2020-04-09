@@ -29,12 +29,21 @@ SOFTWARE.
 #include "core/math/transform.h"
 #include "core/ustring.h"
 #include "editor/import/editor_import_plugin.h"
-#include "scene/3d/mesh_instance.h"
 #include "scene/main/node.h"
 #include "scene/resources/mesh.h"
 
 #include "../mesh_data_resource.h"
 #include "editor/import/editor_import_collada.h"
+
+#include "core/version.h"
+
+#if VERSION_MAJOR < 4
+#include "scene/3d/mesh_instance.h"
+#else
+#include "scene/3d/mesh_instance_3d.h"
+
+#define MeshInstance MeshInstance3D
+#endif
 
 class EditorImportColladaMdr : public EditorImportPlugin {
 
