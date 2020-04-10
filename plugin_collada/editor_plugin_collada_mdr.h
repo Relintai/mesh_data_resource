@@ -23,8 +23,8 @@ SOFTWARE.
 #ifndef EDITOR_PLUGIN_COLLADA_MDR
 #define EDITOR_PLUGIN_COLLADA_MDR
 
-#include "editor/editor_plugin.h"
 #include "core/ustring.h"
+#include "editor/editor_plugin.h"
 
 #include "editor_import_collada_mdr.h"
 

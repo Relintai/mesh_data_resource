@@ -88,9 +88,9 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 			if (mesh.is_valid()) {
 				Ref<MeshDataResource> mdr;
 				mdr.instance();
-                
-                Array arrays = mesh->surface_get_arrays(0);
-                
+
+				Array arrays = mesh->surface_get_arrays(0);
+
 				mdr->set_array(apply_transforms(arrays, p_options));
 
 				n->queue_delete();
@@ -104,12 +104,11 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 	return Error::ERR_PARSE_ERROR;
 }
 
-
 Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringName, Variant> &p_options) {
-    Vector3 offset = p_options["offset"];
-    Vector3 rotation = p_options["rotation"];
-    Vector3 scale = p_options["scale"];
-    
+	Vector3 offset = p_options["offset"];
+	Vector3 rotation = p_options["rotation"];
+	Vector3 scale = p_options["scale"];
+
 	Transform transform = Transform(Basis(rotation).scaled(scale), offset);
 
 	Array verts = array.get(Mesh::ARRAY_VERTEX);

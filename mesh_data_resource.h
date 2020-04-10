@@ -23,8 +23,8 @@ SOFTWARE.
 #ifndef MESH_DATA_REOURCE_H
 #define MESH_DATA_REOURCE_H
 
-#include "core/resource.h"
 #include "core/array.h"
+#include "core/resource.h"
 #include "scene/resources/mesh.h"
 
 class MeshDataResource : public Resource {

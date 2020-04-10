@@ -32,7 +32,6 @@ void MeshDataResource::set_array(const Array &p_arrays) {
 }
 
 MeshDataResource::MeshDataResource() {
-
 }
 
 void MeshDataResource::_bind_methods() {
