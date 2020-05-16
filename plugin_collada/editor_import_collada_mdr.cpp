@@ -111,6 +111,8 @@ Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringNam
 
 	Transform transform = Transform(Basis(rotation).scaled(scale), offset);
 
+	ERR_FAIL_COND_V(array.size() != Mesh::ARRAY_MAX, Array());
+
 	Array verts = array.get(Mesh::ARRAY_VERTEX);
 
 	for (int i = 0; i < verts.size(); ++i) {
@@ -134,9 +136,7 @@ Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringNam
 	Array tangents = array.get(Mesh::ARRAY_TANGENT);
 
 	if (tangents.size() == verts.size() * 4) {
-
 		for (int i = 0; i < verts.size(); ++i) {
-
 			Plane p(tangents[i * 4 + 0], tangents[i * 4 + 1], tangents[i * 4 + 2], tangents[i * 4 + 3]);
 
 			Vector3 tangent = p.normal;
