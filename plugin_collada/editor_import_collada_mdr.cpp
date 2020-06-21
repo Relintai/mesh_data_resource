@@ -55,6 +55,8 @@ String EditorImportColladaMdr::get_preset_name(int p_idx) const {
 }
 
 void EditorImportColladaMdr::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "collider_type", PROPERTY_HINT_ENUM, MeshDataResource::BINDING_STRING_COLLIDER_TYPE), MeshDataResource::COLLIDER_TYPE_NONE));
+
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "offset"), Vector3(0, 0, 0)));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "rotation"), Vector3(0, 0, -(3.141592 / 2.0))));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "scale"), Vector3(0.011, 0.011, 0.011)));
@@ -65,6 +67,8 @@ bool EditorImportColladaMdr::get_option_visibility(const String &p_option, const
 }
 
 Error EditorImportColladaMdr::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
+
 	Node *n = _importer->import_scene(p_source_file, 0, 15);
 
 	if (n == NULL) {
@@ -74,7 +78,6 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 
 	for (int i = 0; i < n->get_child_count(); ++i) {
 		Node *c = n->get_child(i);
-		print_error(String::num(i));
 
 		if (c == NULL) {
 			continue;
@@ -92,6 +95,36 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 				Array arrays = mesh->surface_get_arrays(0);
 
 				mdr->set_array(apply_transforms(arrays, p_options));
+
+				if (collider_type == MeshDataResource::COLLIDER_TYPE_TRIMESH_COLLISION_SHAPE) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Ref<Shape> shape = m->create_trimesh_shape();
+
+					if (!shape.is_null()) {
+						mdr->add_collision_shape(shape);
+					}
+				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Ref<Shape> shape = mesh->create_convex_shape();
+
+					if (!shape.is_null()) {
+						mdr->add_collision_shape(shape);
+					}
+				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+
+					mdr->set_collision_shapes(shapes);
+				}
 
 				n->queue_delete();
 
@@ -113,7 +146,7 @@ Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringNam
 
 	ERR_FAIL_COND_V(array.size() != Mesh::ARRAY_MAX, Array());
 
-	Array verts = array.get(Mesh::ARRAY_VERTEX);
+	PoolVector3Array verts = array.get(Mesh::ARRAY_VERTEX);
 
 	for (int i = 0; i < verts.size(); ++i) {
 		Vector3 vert = verts[i];
@@ -123,7 +156,7 @@ Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringNam
 		verts.set(i, (vert));
 	}
 
-	Array normals = array.get(Mesh::ARRAY_NORMAL);
+	PoolVector3Array normals = array.get(Mesh::ARRAY_NORMAL);
 
 	for (int i = 0; i < normals.size(); ++i) {
 		Vector3 normal = normals[i];
@@ -133,6 +166,7 @@ Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringNam
 		normals.set(i, normal);
 	}
 
+	/*
 	Array tangents = array.get(Mesh::ARRAY_TANGENT);
 
 	if (tangents.size() == verts.size() * 4) {
@@ -146,10 +180,10 @@ Array EditorImportColladaMdr::apply_transforms(Array &array, const Map<StringNam
 			tangents.set(i, tangent);
 		}
 	}
-
+*/
 	array.set(Mesh::ARRAY_VERTEX, verts);
 	array.set(Mesh::ARRAY_NORMAL, normals);
-	array.set(Mesh::ARRAY_TANGENT, tangents);
+	//array.set(Mesh::ARRAY_TANGENT, tangents);
 
 	return array;
 }

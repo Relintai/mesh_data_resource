@@ -26,6 +26,7 @@ SOFTWARE.
 #include "core/array.h"
 #include "core/resource.h"
 #include "scene/resources/mesh.h"
+#include "scene/resources/shape.h"
 
 class MeshDataResource : public Resource {
 
@@ -33,16 +34,40 @@ class MeshDataResource : public Resource {
 	RES_BASE_EXTENSION("mdres");
 
 public:
+	static const String BINDING_STRING_COLLIDER_TYPE;
+
+	enum ColliderType {
+		COLLIDER_TYPE_NONE = 0,
+		COLLIDER_TYPE_TRIMESH_COLLISION_SHAPE,
+		COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE,
+		COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES,
+	};
+
+public:
 	Array get_array();
 	void set_array(const Array &p_arrays);
 
+	Vector<Ref<Shape> > get_collision_shapes();
+	void set_collision_shapes(const Vector<Ref<Shape> > &shapes);
+
+	void add_collision_shape(const Ref<Shape> &shape);
+	Ref<Shape> get_collision_shape(const int index);
+	int get_collision_shape_count() const;
+
+	Vector<Variant> get_collision_shapes_bind();
+	void set_collision_shapes_bind(const Vector<Variant> &p_arrays);
+
 	MeshDataResource();
+	~MeshDataResource();
 
 protected:
 	static void _bind_methods();
 
 private:
 	Array _arrays;
+	Vector<Ref<Shape> > _collision_shapes;
 };
+
+VARIANT_ENUM_CAST(MeshDataResource::ColliderType);
 
 #endif
