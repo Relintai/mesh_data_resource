@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019-2020 Péter Magyar
+Copyright (c) 2020 Péter Magyar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,31 +20,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "register_types.h"
+#ifndef PROP_MESH_DATA_INSTANCE_H
+#define PROP_MESH_DATA_INSTANCE_H
 
-#include "mesh_data_resource.h"
+#include "core/version.h"
+#include "scene/resources/texture.h"
 
-#ifdef TOOLS_ENABLED
-#include "editor/editor_plugin.h"
+#if VERSION_MAJOR < 4
+#include "scene/3d/spatial.h"
+#else
+#include "scene/3d/node_3d.h"
 
-#include "plugin_collada/editor_plugin_collada_mdr.h"
-
-#include "nodes/mesh_data_instance.h"
-
-#include "plugin_gltf/editor_plugin_gltf_mdr.h"
+#define Spatial Node3D
+#define Texture Texture2D
 #endif
 
-void register_mesh_data_resource_types() {
-	ClassDB::register_class<MeshDataResource>();
+#include "core/math/vector3.h"
 
-	ClassDB::register_class<MeshDataInstance>();
+#include "../mesh_data_resource.h"
 
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<EditorPluginColladaMdr>();
+class PropInstance;
 
-	EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
+class MeshDataInstance : public Spatial {
+	GDCLASS(MeshDataInstance, Spatial);
+
+public:
+	bool get_snap_to_mesh() const;
+	void set_snap_to_mesh(const bool value);
+
+	Vector3 get_snap_axis() const;
+	void set_snap_axis(const Vector3 &value);
+
+	Ref<MeshDataResource> get_mesh();
+	void set_mesh(const Ref<MeshDataResource> &mesh);
+
+	Ref<Texture> get_texture();
+	void set_texture(const Ref<Texture> &texture);
+
+	MeshDataInstance();
+	~MeshDataInstance();
+
+protected:
+	void notification(int p_what);
+	static void _bind_methods();
+
+private:
+	bool _snap_to_mesh;
+	Vector3 _snap_axis;
+	Ref<MeshDataResource> _mesh;
+	Ref<Texture> _texture;
+};
+
 #endif
-}
-
-void unregister_mesh_data_resource_types() {
-}

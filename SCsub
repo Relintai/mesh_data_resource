@@ -11,3 +11,5 @@ module_env.add_source_files(env.modules_sources,"plugin_collada/editor_plugin_co
 
 module_env.add_source_files(env.modules_sources,"plugin_gltf/editor_import_gltf_mdr.cpp")
 module_env.add_source_files(env.modules_sources,"plugin_gltf/editor_plugin_gltf_mdr.cpp")
+
+module_env.add_source_files(env.modules_sources,"nodes/mesh_data_instance.cpp")

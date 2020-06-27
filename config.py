@@ -11,6 +11,7 @@ def configure(env):
 def get_doc_classes():
     return [
         "MeshDataResource",
+        "MeshDataInstance",
     ]
 
 def get_doc_path():
