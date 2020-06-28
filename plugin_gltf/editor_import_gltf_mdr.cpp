@@ -22,6 +22,14 @@ SOFTWARE.
 
 #include "editor_import_gltf_mdr.h"
 
+#include "scene/resources/box_shape.h"
+#include "scene/resources/capsule_shape.h"
+#include "scene/resources/concave_polygon_shape.h"
+#include "scene/resources/convex_polygon_shape.h"
+#include "scene/resources/cylinder_shape.h"
+#include "scene/resources/shape.h"
+#include "scene/resources/sphere_shape.h"
+
 String EditorImportGLTFMdr::get_importer_name() const {
 	return "gltf_mdr";
 }
@@ -72,6 +80,8 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 
 	Node *n = _importer->import_scene(p_source_file, 0, 15);
 
+	Vector3 scale = p_options["scale"];
+
 	if (n == NULL) {
 		n->queue_delete();
 		return Error::ERR_PARSE_ERROR;
@@ -105,7 +115,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Ref<Shape> shape = m->create_trimesh_shape();
 
 					if (!shape.is_null()) {
-						mdr->add_collision_shape(shape);
+						mdr->add_collision_shape(scale_shape(shape, scale));
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE) {
 					Ref<ArrayMesh> m;
@@ -115,7 +125,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Ref<Shape> shape = mesh->create_convex_shape();
 
 					if (!shape.is_null()) {
-						mdr->add_collision_shape(shape);
+						mdr->add_collision_shape(scale_shape(shape, scale));
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
 					Ref<ArrayMesh> m;
@@ -123,6 +133,10 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 					Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+
+					for (int j = 0; j < shapes.size(); ++j) {
+						scale_shape(shapes[j], scale);
+					}
 
 					mdr->set_collision_shapes(shapes);
 				}
@@ -186,6 +200,78 @@ Array EditorImportGLTFMdr::apply_transforms(Array &array, const Map<StringName, 
 	//array.set(Mesh::ARRAY_TANGENT, tangents);
 
 	return array;
+}
+
+Ref<Shape> EditorImportGLTFMdr::scale_shape(Ref<Shape> shape, const Vector3 &scale) {
+
+	if (shape.is_null())
+		return shape;
+
+	if (Object::cast_to<SphereShape>(*shape)) {
+
+		Ref<SphereShape> ss = shape;
+
+		ss->set_radius(ss->get_radius() * MAX(scale.x, MAX(scale.y, scale.z)));
+	}
+
+	if (Object::cast_to<BoxShape>(*shape)) {
+
+		Ref<BoxShape> bs = shape;
+
+		bs->set_extents(bs->get_extents() * scale);
+	}
+
+	if (Object::cast_to<CapsuleShape>(*shape)) {
+
+		Ref<CapsuleShape> cs = shape;
+
+		float sc = MAX(scale.x, MAX(scale.y, scale.z));
+
+		cs->set_radius(cs->get_radius() * sc);
+		cs->set_height(cs->get_height() * sc);
+	}
+
+	if (Object::cast_to<CylinderShape>(*shape)) {
+
+		Ref<CylinderShape> cs = shape;
+
+		float sc = MAX(scale.x, MAX(scale.y, scale.z));
+
+		cs->set_radius(cs->get_radius() * sc);
+		cs->set_height(cs->get_height() * sc);
+	}
+
+	if (Object::cast_to<ConcavePolygonShape>(*shape)) {
+
+		Ref<ConcavePolygonShape> cps = shape;
+
+		PoolVector3Array arr = cps->get_faces();
+
+		Basis b = Basis().scaled(scale);
+
+		for (int i = 0; i < arr.size(); ++i) {
+			arr.set(i, b.xform(arr[i]));
+		}
+
+		cps->set_faces(arr);
+	}
+
+	if (Object::cast_to<ConvexPolygonShape>(*shape)) {
+
+		Ref<ConvexPolygonShape> cps = shape;
+
+		PoolVector3Array arr = cps->get_points();
+
+		Basis b = Basis().scaled(scale);
+
+		for (int i = 0; i < arr.size(); ++i) {
+			arr.set(i, b.xform(arr[i]));
+		}
+
+		cps->set_points(arr);
+	}
+
+	return shape;
 }
 
 EditorImportGLTFMdr::EditorImportGLTFMdr() {

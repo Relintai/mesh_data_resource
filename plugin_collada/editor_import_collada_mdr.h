@@ -66,6 +66,7 @@ public:
 	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
 
 	Array apply_transforms(Array &array, const Map<StringName, Variant> &p_options);
+	Ref<Shape> scale_shape(Ref<Shape> shape, const Vector3 &scale);
 
 	EditorImportColladaMdr();
 	~EditorImportColladaMdr();
