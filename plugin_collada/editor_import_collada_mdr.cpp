@@ -152,7 +152,10 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 
 					shape->set_extents(size * 0.5);
 
-					mdr->add_collision_shape(aabb.position, shape);
+					Vector3 pos = aabb.position;
+					pos += size / 2.0;
+
+					mdr->add_collision_shape(pos, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CAPSULE) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -167,7 +170,10 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					shape->set_height(size.y * 0.5);
 					shape->set_radius(MIN(size.x, size.z) * 0.5);
 
-					mdr->add_collision_shape(aabb.position, shape);
+					Vector3 pos = aabb.position;
+					pos += size / 2.0;
+
+					mdr->add_collision_shape(pos, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CYLINDER) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -182,7 +188,10 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					shape->set_height(size.y * 0.5);
 					shape->set_radius(MIN(size.x, size.z) * 0.5);
 
-					mdr->add_collision_shape(aabb.position, shape);
+					Vector3 pos = aabb.position;
+					pos += size / 2.0;
+
+					mdr->add_collision_shape(pos, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_SPHERE) {
 					Ref<ArrayMesh> m;
 					m.instance();
