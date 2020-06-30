@@ -115,7 +115,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Ref<Shape> shape = m->create_trimesh_shape();
 
 					if (!shape.is_null()) {
-						mdr->add_collision_shape(Vector3(), scale_shape(shape, scale));
+						mdr->add_collision_shape(Transform(), scale_shape(shape, scale));
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE) {
 					Ref<ArrayMesh> m;
@@ -125,7 +125,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Ref<Shape> shape = mesh->create_convex_shape();
 
 					if (!shape.is_null()) {
-						mdr->add_collision_shape(Vector3(), scale_shape(shape, scale));
+						mdr->add_collision_shape(Transform(), scale_shape(shape, scale));
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
 					Ref<ArrayMesh> m;
@@ -139,7 +139,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					}
 
 					for (int j = 0; j < shapes.size(); ++j) {
-						mdr->add_collision_shape(Vector3(), shapes[j]);
+						mdr->add_collision_shape(Transform(), shapes[j]);
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_BOX) {
 					Ref<ArrayMesh> m;
@@ -157,7 +157,10 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Vector3 pos = aabb.position;
 					pos += size / 2.0;
 
-					mdr->add_collision_shape(pos, shape);
+					Transform t;
+					t.origin = pos;
+
+					mdr->add_collision_shape(t, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CAPSULE) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -175,7 +178,10 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Vector3 pos = aabb.position;
 					pos += size / 2.0;
 
-					mdr->add_collision_shape(pos, shape);
+					Transform t = Transform(Basis().rotated(Vector3(1, 0, 0), M_PI_2));
+					t.origin = pos;
+
+					mdr->add_collision_shape(t, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CYLINDER) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -193,7 +199,10 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 					Vector3 pos = aabb.position;
 					pos += size / 2.0;
 
-					mdr->add_collision_shape(pos, shape);
+					Transform t;
+					t.origin = pos;
+
+					mdr->add_collision_shape(t, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_SPHERE) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -209,7 +218,10 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 
 					Vector3 mid = aabb.get_size() / 2.0;
 
-					mdr->add_collision_shape(aabb.position + mid, shape);
+					Transform t;
+					t.origin = aabb.position + mid;
+
+					mdr->add_collision_shape(t, shape);
 				}
 
 				n->queue_delete();

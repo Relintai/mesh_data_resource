@@ -35,10 +35,10 @@ void MeshDataResource::set_array(const Array &p_arrays) {
 	_arrays = p_arrays.duplicate(true);
 }
 
-void MeshDataResource::add_collision_shape(const Vector3 &offset, const Ref<Shape> &shape) {
+void MeshDataResource::add_collision_shape(const Transform &transform, const Ref<Shape> &shape) {
 	MDRData d;
 
-	d.offset = offset;
+	d.transform = transform;
 	d.shape = shape;
 
 	_collision_shapes.push_back(d);
@@ -48,10 +48,10 @@ Ref<Shape> MeshDataResource::get_collision_shape(const int index) {
 
 	return _collision_shapes[index].shape;
 }
-Vector3 MeshDataResource::get_collision_shape_offset(const int index) {
-	ERR_FAIL_INDEX_V(index, _collision_shapes.size(), Vector3());
+Transform MeshDataResource::get_collision_shape_offset(const int index) {
+	ERR_FAIL_INDEX_V(index, _collision_shapes.size(), Transform());
 
-	return _collision_shapes[index].offset;
+	return _collision_shapes[index].transform;
 }
 int MeshDataResource::get_collision_shape_count() const {
 	return _collision_shapes.size();
@@ -61,7 +61,7 @@ Vector<Variant> MeshDataResource::get_collision_shapes() {
 	Vector<Variant> r;
 	for (int i = 0; i < _collision_shapes.size(); i++) {
 #if VERSION_MAJOR < 4
-		r.push_back(_collision_shapes[i].offset);
+		r.push_back(_collision_shapes[i].transform);
 		r.push_back(_collision_shapes[i].shape.get_ref_ptr());
 #else
 		r.push_back(_collision_shapes[i].offset);
@@ -77,7 +77,7 @@ void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
 	for (int i = 0; i < p_arrays.size(); i += 2) {
 		MDRData d;
 
-		d.offset = p_arrays[i];
+		d.transform = p_arrays[i];
 		d.shape = Ref<Shape>(p_arrays[i + 1]);
 
 		_collision_shapes.push_back(d);

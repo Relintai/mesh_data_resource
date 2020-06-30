@@ -51,9 +51,9 @@ public:
 	Array get_array();
 	void set_array(const Array &p_arrays);
 
-	void add_collision_shape(const Vector3 &offset, const Ref<Shape> &shape);
+	void add_collision_shape(const Transform &transform, const Ref<Shape> &shape);
 	Ref<Shape> get_collision_shape(const int index);
-	Vector3 get_collision_shape_offset(const int index);
+	Transform get_collision_shape_offset(const int index);
 	int get_collision_shape_count() const;
 
 	Vector<Variant> get_collision_shapes();
@@ -65,7 +65,7 @@ public:
 protected:
 	struct MDRData {
 		Ref<Shape> shape;
-		Vector3 offset;
+		Transform transform;
 	};
 
 protected:

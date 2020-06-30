@@ -35,6 +35,8 @@ SOFTWARE.
 #include "../mesh_data_resource.h"
 #include "editor/import/editor_scene_importer_gltf.h"
 
+#include "core/math/transform.h"
+
 #include "core/version.h"
 
 #if VERSION_MAJOR < 4
