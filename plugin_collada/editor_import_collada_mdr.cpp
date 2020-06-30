@@ -114,7 +114,7 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					Ref<Shape> shape = m->create_trimesh_shape();
 
 					if (!shape.is_null()) {
-						mdr->add_collision_shape(scale_shape(shape, scale));
+						mdr->add_collision_shape(Vector3(), scale_shape(shape, scale));
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE) {
 					Ref<ArrayMesh> m;
@@ -124,7 +124,6 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					Ref<Shape> shape = mesh->create_convex_shape();
 
 					if (!shape.is_null()) {
-						mdr->add_collision_shape(scale_shape(shape, scale));
 					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
 					Ref<ArrayMesh> m;
@@ -137,7 +136,9 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 						scale_shape(shapes[j], scale);
 					}
 
-					mdr->set_collision_shapes(shapes);
+					for (int j = 0; j < shapes.size(); ++j) {
+						mdr->add_collision_shape(Vector3(), shapes[j]);
+					}
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_BOX) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -151,7 +152,7 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 
 					shape->set_extents(size * 0.5);
 
-					mdr->add_collision_shape(shape);
+					mdr->add_collision_shape(aabb.position, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CAPSULE) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -166,7 +167,7 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					shape->set_height(size.y * 0.5);
 					shape->set_radius(MIN(size.x, size.z) * 0.5);
 
-					mdr->add_collision_shape(shape);
+					mdr->add_collision_shape(aabb.position, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CYLINDER) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -181,7 +182,7 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					shape->set_height(size.y * 0.5);
 					shape->set_radius(MIN(size.x, size.z) * 0.5);
 
-					mdr->add_collision_shape(shape);
+					mdr->add_collision_shape(aabb.position, shape);
 				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_SPHERE) {
 					Ref<ArrayMesh> m;
 					m.instance();
@@ -195,7 +196,9 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 
 					shape->set_radius(MIN(size.x, MIN(size.y, size.z)) * 0.5);
 
-					mdr->add_collision_shape(shape);
+					Vector3 mid = aabb.get_size() / 2.0;
+
+					mdr->add_collision_shape(aabb.position + mid, shape);
 				}
 
 				n->queue_delete();

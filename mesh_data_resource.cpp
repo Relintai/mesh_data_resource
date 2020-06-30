@@ -35,41 +35,52 @@ void MeshDataResource::set_array(const Array &p_arrays) {
 	_arrays = p_arrays.duplicate(true);
 }
 
-Vector<Ref<Shape> > MeshDataResource::get_collision_shapes() {
-	return _collision_shapes;
-}
-void MeshDataResource::set_collision_shapes(const Vector<Ref<Shape> > &shapes) {
-	_collision_shapes = shapes;
-}
+void MeshDataResource::add_collision_shape(const Vector3 &offset, const Ref<Shape> &shape) {
+	MDRData d;
 
-void MeshDataResource::add_collision_shape(const Ref<Shape> &shape) {
-	_collision_shapes.push_back(shape);
+	d.offset = offset;
+	d.shape = shape;
+
+	_collision_shapes.push_back(d);
 }
 Ref<Shape> MeshDataResource::get_collision_shape(const int index) {
 	ERR_FAIL_INDEX_V(index, _collision_shapes.size(), Ref<Shape>());
 
-	return _collision_shapes[index];
+	return _collision_shapes[index].shape;
+}
+Vector3 MeshDataResource::get_collision_shape_offset(const int index) {
+	ERR_FAIL_INDEX_V(index, _collision_shapes.size(), Vector3());
+
+	return _collision_shapes[index].offset;
 }
 int MeshDataResource::get_collision_shape_count() const {
 	return _collision_shapes.size();
 }
 
-Vector<Variant> MeshDataResource::get_collision_shapes_bind() {
+Vector<Variant> MeshDataResource::get_collision_shapes() {
 	Vector<Variant> r;
 	for (int i = 0; i < _collision_shapes.size(); i++) {
 #if VERSION_MAJOR < 4
-		r.push_back(_collision_shapes[i].get_ref_ptr());
+		r.push_back(_collision_shapes[i].offset);
+		r.push_back(_collision_shapes[i].shape.get_ref_ptr());
 #else
-		r.push_back(_collision_shapes[i]);
+		r.push_back(_collision_shapes[i].offset);
+		r.push_back(_collision_shapes[i].shape);
 #endif
 	}
 	return r;
 }
-void MeshDataResource::set_collision_shapes_bind(const Vector<Variant> &p_arrays) {
+void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
+	ERR_FAIL_COND(p_arrays.size() % 2 == 1);
+
 	_collision_shapes.clear();
-	for (int i = 0; i < p_arrays.size(); i++) {
-		Ref<Shape> e = Ref<Shape>(p_arrays[i]);
-		_collision_shapes.push_back(e);
+	for (int i = 0; i < p_arrays.size(); i += 2) {
+		MDRData d;
+
+		d.offset = p_arrays[i];
+		d.shape = Ref<Shape>(p_arrays[i + 1]);
+
+		_collision_shapes.push_back(d);
 	}
 }
 
@@ -86,8 +97,8 @@ void MeshDataResource::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_array", "array"), &MeshDataResource::set_array);
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "array"), "set_array", "get_array");
 
-	ClassDB::bind_method(D_METHOD("get_collision_shapes"), &MeshDataResource::get_collision_shapes_bind);
-	ClassDB::bind_method(D_METHOD("set_collision_shapes", "array"), &MeshDataResource::set_collision_shapes_bind);
+	ClassDB::bind_method(D_METHOD("get_collision_shapes"), &MeshDataResource::get_collision_shapes);
+	ClassDB::bind_method(D_METHOD("set_collision_shapes", "array"), &MeshDataResource::set_collision_shapes);
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "collision_shapes"), "set_collision_shapes", "get_collision_shapes");
 
 	ClassDB::bind_method(D_METHOD("add_collision_shape", "shape"), &MeshDataResource::add_collision_shape);

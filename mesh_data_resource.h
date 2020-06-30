@@ -51,25 +51,29 @@ public:
 	Array get_array();
 	void set_array(const Array &p_arrays);
 
-	Vector<Ref<Shape> > get_collision_shapes();
-	void set_collision_shapes(const Vector<Ref<Shape> > &shapes);
-
-	void add_collision_shape(const Ref<Shape> &shape);
+	void add_collision_shape(const Vector3 &offset, const Ref<Shape> &shape);
 	Ref<Shape> get_collision_shape(const int index);
+	Vector3 get_collision_shape_offset(const int index);
 	int get_collision_shape_count() const;
 
-	Vector<Variant> get_collision_shapes_bind();
-	void set_collision_shapes_bind(const Vector<Variant> &p_arrays);
+	Vector<Variant> get_collision_shapes();
+	void set_collision_shapes(const Vector<Variant> &p_arrays);
 
 	MeshDataResource();
 	~MeshDataResource();
+
+protected:
+	struct MDRData {
+		Ref<Shape> shape;
+		Vector3 offset;
+	};
 
 protected:
 	static void _bind_methods();
 
 private:
 	Array _arrays;
-	Vector<Ref<Shape> > _collision_shapes;
+	Vector<MDRData> _collision_shapes;
 };
 
 VARIANT_ENUM_CAST(MeshDataResource::ColliderType);
