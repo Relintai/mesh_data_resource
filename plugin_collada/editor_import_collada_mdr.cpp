@@ -138,6 +138,64 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 					}
 
 					mdr->set_collision_shapes(shapes);
+				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_BOX) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Ref<BoxShape> shape;
+					shape.instance();
+
+					AABB aabb = m->get_aabb();
+					Vector3 size = aabb.get_size();
+
+					shape->set_extents(size * 0.5);
+
+					mdr->add_collision_shape(shape);
+				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CAPSULE) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Ref<CapsuleShape> shape;
+					shape.instance();
+
+					AABB aabb = m->get_aabb();
+					Vector3 size = aabb.get_size();
+
+					shape->set_height(size.y * 0.5);
+					shape->set_radius(MIN(size.x, size.z) * 0.5);
+
+					mdr->add_collision_shape(shape);
+				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CYLINDER) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Ref<CylinderShape> shape;
+					shape.instance();
+
+					AABB aabb = m->get_aabb();
+					Vector3 size = aabb.get_size();
+
+					shape->set_height(size.y * 0.5);
+					shape->set_radius(MIN(size.x, size.z) * 0.5);
+
+					mdr->add_collision_shape(shape);
+				} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_SPHERE) {
+					Ref<ArrayMesh> m;
+					m.instance();
+					m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+
+					Ref<SphereShape> shape;
+					shape.instance();
+
+					AABB aabb = m->get_aabb();
+					Vector3 size = aabb.get_size();
+
+					shape->set_radius(MIN(size.x, MIN(size.y, size.z)) * 0.5);
+
+					mdr->add_collision_shape(shape);
 				}
 
 				n->queue_delete();
