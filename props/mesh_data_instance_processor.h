@@ -20,43 +20,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "register_types.h"
-
-#include "mesh_data_resource.h"
-#include "nodes/mesh_data_instance.h"
-
-#ifdef TOOLS_ENABLED
-#include "editor/editor_plugin.h"
-
-#include "plugin_collada/editor_plugin_collada_mdr.h"
-
-#include "plugin_gltf/editor_plugin_gltf_mdr.h"
-#endif
+#ifndef PROP_MESH_DATA_INSTANCE_PROCESSOR_H
+#define PROP_MESH_DATA_INSTANCE_PROCESSOR_H
 
 #if PROPS_PRESENT
-#include "../props/singleton/prop_utils.h"
-#include "props/mesh_data_instance_processor.h"
-#include "props/prop_data_mesh.h"
+
+#include "../../props/processor/prop_data_processor.h"
+
+#include "core/version.h"
+#include "scene/resources/texture.h"
+
+#include "core/math/vector3.h"
+
+#include "../mesh_data_resource.h"
+
+class PropInstance;
+
+class MeshDataInstanceProcessor : public PropDataProcessor {
+	GDCLASS(MeshDataInstanceProcessor, PropDataProcessor);
+
+public:
+	bool _handles(Node *node);
+	void _process(Ref<PropData> prop_data, Node *node, const Transform &transform);
+
+	MeshDataInstanceProcessor();
+	~MeshDataInstanceProcessor();
+
+protected:
+	static void _bind_methods();
+
+private:
+};
+
 #endif
 
-void register_mesh_data_resource_types() {
-	ClassDB::register_class<MeshDataResource>();
-
-	ClassDB::register_class<MeshDataInstance>();
-
-#if PROPS_PRESENT
-	ClassDB::register_class<PropDataMesh>();
-	ClassDB::register_class<MeshDataInstanceProcessor>();
-	Ref<PropDataProcessor> processor = memnew(MeshDataInstanceProcessor);
-	PropUtils::add_processor(processor);
 #endif
-
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<EditorPluginColladaMdr>();
-
-	EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
-#endif
-}
-
-void unregister_mesh_data_resource_types() {
-}

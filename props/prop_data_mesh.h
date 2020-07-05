@@ -20,43 +20,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "register_types.h"
-
-#include "mesh_data_resource.h"
-#include "nodes/mesh_data_instance.h"
-
-#ifdef TOOLS_ENABLED
-#include "editor/editor_plugin.h"
-
-#include "plugin_collada/editor_plugin_collada_mdr.h"
-
-#include "plugin_gltf/editor_plugin_gltf_mdr.h"
-#endif
+#ifndef PROP_DATA_MESH_H
+#define PROP_DATA_MESH_H
 
 #if PROPS_PRESENT
-#include "../props/singleton/prop_utils.h"
-#include "props/mesh_data_instance_processor.h"
-#include "props/prop_data_mesh.h"
+
+#include "../../props/props/prop_data_entry.h"
+#include "core/math/vector3.h"
+
+#include "scene/resources/texture.h"
+
+#include "../mesh_data_resource.h"
+
+class PropDataMesh : public PropDataEntry {
+	GDCLASS(PropDataMesh, PropDataEntry);
+
+public:
+	Ref<MeshDataResource> get_mesh() const;
+	void set_mesh(const Ref<MeshDataResource> mesh);
+
+	Ref<Texture> get_texture() const;
+	void set_texture(const Ref<Texture> texture);
+
+	bool get_snap_to_mesh();
+	void set_snap_to_mesh(bool value);
+
+	Vector3 get_snap_axis();
+	void set_snap_axis(Vector3 value);
+
+	PropDataMesh();
+	~PropDataMesh();
+
+protected:
+	static void _bind_methods();
+
+private:
+	bool _snap_to_mesh;
+	Vector3 _snap_axis;
+	Ref<MeshDataResource> _mesh;
+	Ref<Texture> _texture;
+};
+
 #endif
 
-void register_mesh_data_resource_types() {
-	ClassDB::register_class<MeshDataResource>();
-
-	ClassDB::register_class<MeshDataInstance>();
-
-#if PROPS_PRESENT
-	ClassDB::register_class<PropDataMesh>();
-	ClassDB::register_class<MeshDataInstanceProcessor>();
-	Ref<PropDataProcessor> processor = memnew(MeshDataInstanceProcessor);
-	PropUtils::add_processor(processor);
 #endif
-
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<EditorPluginColladaMdr>();
-
-	EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
-#endif
-}
-
-void unregister_mesh_data_resource_types() {
-}
