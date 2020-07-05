@@ -32,6 +32,10 @@ SOFTWARE.
 
 #include "../mesh_data_resource.h"
 
+#if TEXTURE_PACKER_PRESENT
+#include "../../texture_packer/texture_packer.h"
+#endif
+
 class PropDataMesh : public PropDataEntry {
 	GDCLASS(PropDataMesh, PropDataEntry);
 
@@ -47,6 +51,10 @@ public:
 
 	Vector3 get_snap_axis();
 	void set_snap_axis(Vector3 value);
+
+#if TEXTURE_PACKER_PRESENT
+	void _add_textures_into(Ref<TexturePacker> texture_packer);
+#endif
 
 	PropDataMesh();
 	~PropDataMesh();
