@@ -1,6 +1,12 @@
+import os
+
 Import('env')
 
 module_env = env.Clone()
+
+
+if os.path.isdir('../texture_packer'):
+    module_env.Append(CPPDEFINES=['TEXTURE_PACKER_PRESENT'])
 
 module_env.add_source_files(env.modules_sources,"register_types.cpp")
 

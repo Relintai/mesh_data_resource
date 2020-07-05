@@ -27,11 +27,11 @@ SOFTWARE.
 #include "scene/resources/texture.h"
 
 #if VERSION_MAJOR < 4
-#include "scene/3d/spatial.h"
+#include "scene/3d/mesh_instance.h"
 #else
-#include "scene/3d/node_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 
-#define Spatial Node3D
+#define MeshInstance MeshInstance3D
 #define Texture Texture2D
 #endif
 
@@ -41,8 +41,8 @@ SOFTWARE.
 
 class PropInstance;
 
-class MeshDataInstance : public Spatial {
-	GDCLASS(MeshDataInstance, Spatial);
+class MeshDataInstance : public MeshInstance {
+	GDCLASS(MeshDataInstance, MeshInstance);
 
 public:
 	bool get_snap_to_mesh() const;
@@ -51,17 +51,23 @@ public:
 	Vector3 get_snap_axis() const;
 	void set_snap_axis(const Vector3 &value);
 
-	Ref<MeshDataResource> get_mesh();
-	void set_mesh(const Ref<MeshDataResource> &mesh);
+	Ref<MeshDataResource> get_mesh_data();
+	void set_mesh_data(const Ref<MeshDataResource> &mesh);
 
 	Ref<Texture> get_texture();
 	void set_texture(const Ref<Texture> &texture);
+
+	Ref<Material> get_material();
+	void set_material(const Ref<Material> &mat);
+
+	void setup_mesh();
+	void setup_material_texture();
 
 	MeshDataInstance();
 	~MeshDataInstance();
 
 protected:
-	void notification(int p_what);
+	//void notification(int p_what);
 	static void _bind_methods();
 
 private:
@@ -69,6 +75,7 @@ private:
 	Vector3 _snap_axis;
 	Ref<MeshDataResource> _mesh;
 	Ref<Texture> _texture;
+	Ref<Material> _material;
 };
 
 #endif
