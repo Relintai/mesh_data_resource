@@ -81,6 +81,16 @@ void PropDataMeshData::_processor_process(Ref<PropData> prop_data, Node *node, c
 	prop_data->add_prop(m);
 }
 
+Node *PropDataMeshData::_processor_get_node_for(const Transform &transform) {
+	MeshDataInstance *i = memnew(MeshDataInstance);
+
+	i->set_mesh_data(get_mesh());
+	i->set_texture(get_texture());
+	i->set_transform(transform * get_transform());
+
+	return i;
+}
+
 PropDataMeshData::PropDataMeshData() {
 	_snap_to_mesh = false;
 	_snap_axis = Vector3(0, 1, 0);
