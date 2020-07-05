@@ -30,8 +30,12 @@ void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
 
 	_mesh = mesh;
 
-	if (_mesh.is_valid() && is_inside_tree()) {
-		setup_mesh();
+	if (_mesh.is_valid()) {
+		if (is_inside_tree()) {
+			setup_mesh();
+		} else {
+			_dirty = true;
+		}
 	}
 }
 
@@ -118,6 +122,7 @@ void MeshDataInstance::setup_material_texture() {
 }
 
 MeshDataInstance::MeshDataInstance() {
+	_dirty = false;
 	_snap_to_mesh = false;
 	_snap_axis = Vector3(0, -1, 0);
 }
@@ -125,16 +130,21 @@ MeshDataInstance::~MeshDataInstance() {
 	_mesh.unref();
 	_texture.unref();
 }
-/*
-void MeshDataInstance::notification(int p_what) {
+
+void MeshDataInstance::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
-			if (get_parent() == NULL)
-				return;
+			if (_dirty) {
+				_dirty = false;
+
+				if (_mesh.is_valid()) {
+					setup_mesh();
+				}
+			}
 		}
 	}
 }
-*/
+
 void MeshDataInstance::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_snap_to_mesh"), &MeshDataInstance::get_snap_to_mesh);
 	ClassDB::bind_method(D_METHOD("set_snap_to_mesh", "value"), &MeshDataInstance::set_snap_to_mesh);

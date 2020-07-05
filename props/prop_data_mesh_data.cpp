@@ -25,6 +25,7 @@ SOFTWARE.
 #if PROPS_PRESENT
 
 #include "../nodes/mesh_data_instance.h"
+#include "scene/resources/material.h"
 
 Ref<MeshDataResource> PropDataMeshData::get_mesh() const {
 	return _mesh;
@@ -84,9 +85,13 @@ void PropDataMeshData::_processor_process(Ref<PropData> prop_data, Node *node, c
 Node *PropDataMeshData::_processor_get_node_for(const Transform &transform) {
 	MeshDataInstance *i = memnew(MeshDataInstance);
 
-	i->set_mesh_data(get_mesh());
+	Ref<SpatialMaterial> m;
+	m.instance();
+
+	i->set_material(m);
 	i->set_texture(get_texture());
-	i->set_transform(transform * get_transform());
+	i->set_mesh_data(get_mesh());
+	i->set_transform(get_transform());
 
 	return i;
 }

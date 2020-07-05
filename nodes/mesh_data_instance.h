@@ -67,10 +67,11 @@ public:
 	~MeshDataInstance();
 
 protected:
-	//void notification(int p_what);
+	void _notification(int p_what);
 	static void _bind_methods();
 
 private:
+	bool _dirty;
 	bool _snap_to_mesh;
 	Vector3 _snap_axis;
 	Ref<MeshDataResource> _mesh;
