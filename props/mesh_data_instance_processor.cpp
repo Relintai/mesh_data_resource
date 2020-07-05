@@ -3,7 +3,7 @@
 #if PROPS_PRESENT
 
 #include "../nodes/mesh_data_instance.h"
-#include "prop_data_mesh.h"
+#include "prop_data_mesh_data.h"
 
 bool MeshDataInstanceProcessor::_handles(Node *node) {
 	MeshDataInstance *i = Object::cast_to<MeshDataInstance>(node);
@@ -16,7 +16,7 @@ void MeshDataInstanceProcessor::_process(Ref<PropData> prop_data, Node *node, co
 
 	ERR_FAIL_COND(!i);
 
-	Ref<PropDataMesh> m;
+	Ref<PropDataMeshData> m;
 	m.instance();
 	m->set_mesh(i->get_mesh_data());
 	m->set_texture(i->get_texture());

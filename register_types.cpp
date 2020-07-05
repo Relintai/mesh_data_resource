@@ -36,7 +36,7 @@ SOFTWARE.
 #if PROPS_PRESENT
 #include "../props/singleton/prop_utils.h"
 #include "props/mesh_data_instance_processor.h"
-#include "props/prop_data_mesh.h"
+#include "props/prop_data_mesh_data.h"
 #endif
 
 void register_mesh_data_resource_types() {
@@ -45,7 +45,7 @@ void register_mesh_data_resource_types() {
 	ClassDB::register_class<MeshDataInstance>();
 
 #if PROPS_PRESENT
-	ClassDB::register_class<PropDataMesh>();
+	ClassDB::register_class<PropDataMeshData>();
 	ClassDB::register_class<MeshDataInstanceProcessor>();
 	Ref<PropDataProcessor> processor = memnew(MeshDataInstanceProcessor);
 	PropUtils::add_processor(processor);

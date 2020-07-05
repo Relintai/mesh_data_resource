@@ -20,74 +20,74 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "prop_data_mesh.h"
+#include "prop_data_mesh_data.h"
 
 #if PROPS_PRESENT
 
-Ref<MeshDataResource> PropDataMesh::get_mesh() const {
+Ref<MeshDataResource> PropDataMeshData::get_mesh() const {
 	return _mesh;
 }
-void PropDataMesh::set_mesh(const Ref<MeshDataResource> mesh) {
+void PropDataMeshData::set_mesh(const Ref<MeshDataResource> mesh) {
 	_mesh = mesh;
 }
 
-Ref<Texture> PropDataMesh::get_texture() const {
+Ref<Texture> PropDataMeshData::get_texture() const {
 	return _texture;
 }
-void PropDataMesh::set_texture(const Ref<Texture> texture) {
+void PropDataMeshData::set_texture(const Ref<Texture> texture) {
 	_texture = texture;
 }
 
-bool PropDataMesh::get_snap_to_mesh() {
+bool PropDataMeshData::get_snap_to_mesh() {
 	return _snap_to_mesh;
 }
-void PropDataMesh::set_snap_to_mesh(bool value) {
+void PropDataMeshData::set_snap_to_mesh(bool value) {
 	_snap_to_mesh = value;
 }
 
-Vector3 PropDataMesh::get_snap_axis() {
+Vector3 PropDataMeshData::get_snap_axis() {
 	return _snap_axis;
 }
-void PropDataMesh::set_snap_axis(Vector3 value) {
+void PropDataMeshData::set_snap_axis(Vector3 value) {
 	_snap_axis = value;
 }
 
 #if TEXTURE_PACKER_PRESENT
-void PropDataMesh::_add_textures_into(Ref<TexturePacker> texture_packer) {
+void PropDataMeshData::_add_textures_into(Ref<TexturePacker> texture_packer) {
 	if (get_texture().is_valid()) {
 		texture_packer->add_texture(get_texture());
 	}
 }
 #endif
 
-PropDataMesh::PropDataMesh() {
+PropDataMeshData::PropDataMeshData() {
 	_snap_to_mesh = false;
 	_snap_axis = Vector3(0, 1, 0);
 }
-PropDataMesh::~PropDataMesh() {
+PropDataMeshData::~PropDataMeshData() {
 	if (_mesh.is_valid())
 		_mesh.unref();
 }
 
-void PropDataMesh::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_mesh"), &PropDataMesh::get_mesh);
-	ClassDB::bind_method(D_METHOD("set_mesh", "value"), &PropDataMesh::set_mesh);
+void PropDataMeshData::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_mesh"), &PropDataMeshData::get_mesh);
+	ClassDB::bind_method(D_METHOD("set_mesh", "value"), &PropDataMeshData::set_mesh);
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "MeshDataResource"), "set_mesh", "get_mesh");
 
-	ClassDB::bind_method(D_METHOD("get_texture"), &PropDataMesh::get_texture);
-	ClassDB::bind_method(D_METHOD("set_texture", "value"), &PropDataMesh::set_texture);
+	ClassDB::bind_method(D_METHOD("get_texture"), &PropDataMeshData::get_texture);
+	ClassDB::bind_method(D_METHOD("set_texture", "value"), &PropDataMeshData::set_texture);
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
 
-	ClassDB::bind_method(D_METHOD("get_snap_to_mesh"), &PropDataMesh::get_snap_to_mesh);
-	ClassDB::bind_method(D_METHOD("set_snap_to_mesh", "value"), &PropDataMesh::set_snap_to_mesh);
+	ClassDB::bind_method(D_METHOD("get_snap_to_mesh"), &PropDataMeshData::get_snap_to_mesh);
+	ClassDB::bind_method(D_METHOD("set_snap_to_mesh", "value"), &PropDataMeshData::set_snap_to_mesh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "snap_to_mesh"), "set_snap_to_mesh", "get_snap_to_mesh");
 
-	ClassDB::bind_method(D_METHOD("get_snap_axis"), &PropDataMesh::get_snap_axis);
-	ClassDB::bind_method(D_METHOD("set_snap_axis", "value"), &PropDataMesh::set_snap_axis);
+	ClassDB::bind_method(D_METHOD("get_snap_axis"), &PropDataMeshData::get_snap_axis);
+	ClassDB::bind_method(D_METHOD("set_snap_axis", "value"), &PropDataMeshData::set_snap_axis);
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "snap_axis"), "set_snap_axis", "get_snap_axis");
 
 #if TEXTURE_PACKER_PRESENT
-	ClassDB::bind_method(D_METHOD("_add_textures_into", "texture_packer"), &PropDataMesh::_add_textures_into);
+	ClassDB::bind_method(D_METHOD("_add_textures_into", "texture_packer"), &PropDataMeshData::_add_textures_into);
 #endif
 }
 

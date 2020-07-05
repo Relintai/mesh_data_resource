@@ -23,4 +23,4 @@ module_env.add_source_files(env.modules_sources,"plugin_gltf/editor_plugin_gltf_
 module_env.add_source_files(env.modules_sources,"nodes/mesh_data_instance.cpp")
 
 module_env.add_source_files(env.modules_sources,"props/mesh_data_instance_processor.cpp")
-module_env.add_source_files(env.modules_sources,"props/prop_data_mesh.cpp")
+module_env.add_source_files(env.modules_sources,"props/prop_data_mesh_data.cpp")

@@ -36,8 +36,8 @@ SOFTWARE.
 #include "../../texture_packer/texture_packer.h"
 #endif
 
-class PropDataMesh : public PropDataEntry {
-	GDCLASS(PropDataMesh, PropDataEntry);
+class PropDataMeshData : public PropDataEntry {
+	GDCLASS(PropDataMeshData, PropDataEntry);
 
 public:
 	Ref<MeshDataResource> get_mesh() const;
@@ -56,8 +56,8 @@ public:
 	void _add_textures_into(Ref<TexturePacker> texture_packer);
 #endif
 
-	PropDataMesh();
-	~PropDataMesh();
+	PropDataMeshData();
+	~PropDataMeshData();
 
 protected:
 	static void _bind_methods();
