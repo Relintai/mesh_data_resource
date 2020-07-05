@@ -36,6 +36,8 @@ SOFTWARE.
 #include "../../texture_packer/texture_packer.h"
 #endif
 
+#include "../../props/props/prop_data.h"
+
 class PropDataMeshData : public PropDataEntry {
 	GDCLASS(PropDataMeshData, PropDataEntry);
 
@@ -55,6 +57,9 @@ public:
 #if TEXTURE_PACKER_PRESENT
 	void _add_textures_into(Ref<TexturePacker> texture_packer);
 #endif
+
+	bool _processor_handles(Node *node);
+	void _processor_process(Ref<PropData> prop_data, Node *node, const Transform &transform);
 
 	PropDataMeshData();
 	~PropDataMeshData();

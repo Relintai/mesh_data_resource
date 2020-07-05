@@ -24,6 +24,8 @@ SOFTWARE.
 
 #if PROPS_PRESENT
 
+#include "../nodes/mesh_data_instance.h"
+
 Ref<MeshDataResource> PropDataMeshData::get_mesh() const {
 	return _mesh;
 }
@@ -59,6 +61,25 @@ void PropDataMeshData::_add_textures_into(Ref<TexturePacker> texture_packer) {
 	}
 }
 #endif
+
+bool PropDataMeshData::_processor_handles(Node *node) {
+	MeshDataInstance *i = Object::cast_to<MeshDataInstance>(node);
+
+	return i;
+}
+
+void PropDataMeshData::_processor_process(Ref<PropData> prop_data, Node *node, const Transform &transform) {
+	MeshDataInstance *i = Object::cast_to<MeshDataInstance>(node);
+
+	ERR_FAIL_COND(!i);
+
+	Ref<PropDataMeshData> m;
+	m.instance();
+	m->set_mesh(i->get_mesh_data());
+	m->set_texture(i->get_texture());
+	m->set_transform(transform * i->get_transform());
+	prop_data->add_prop(m);
+}
 
 PropDataMeshData::PropDataMeshData() {
 	_snap_to_mesh = false;
