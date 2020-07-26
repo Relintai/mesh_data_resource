@@ -23,6 +23,8 @@ SOFTWARE.
 #ifndef EDITOR_IMPORT_COLLADA_MDR
 #define EDITOR_IMPORT_COLLADA_MDR
 
+#include "../plugin/mdr_import_plugin_base.h"
+
 #include "core/array.h"
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
@@ -45,9 +47,8 @@ SOFTWARE.
 #define MeshInstance MeshInstance3D
 #endif
 
-class EditorImportColladaMdr : public EditorImportPlugin {
-
-	GDCLASS(EditorImportColladaMdr, EditorImportPlugin);
+class EditorImportColladaMdr : public MDRImportPluginBase {
+	GDCLASS(EditorImportColladaMdr, MDRImportPluginBase);
 
 public:
 	virtual String get_importer_name() const;
@@ -60,13 +61,7 @@ public:
 	virtual int get_preset_count() const;
 	virtual String get_preset_name(int p_idx) const;
 
-	virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const;
-	virtual bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const;
-
 	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
-
-	Array apply_transforms(Array &array, const Map<StringName, Variant> &p_options);
-	Ref<Shape> scale_shape(Ref<Shape> shape, const Vector3 &scale);
 
 	EditorImportColladaMdr();
 	~EditorImportColladaMdr();
