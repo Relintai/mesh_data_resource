@@ -58,6 +58,7 @@ public:
 		MDR_IMPORT_TIME_SINGLE = 0,
 		MDR_IMPORT_TIME_SINGLE_MERGED,
 		MDR_IMPORT_TIME_MULTIPLE,
+		MDR_IMPORT_TIME_SINGLE_WITH_SEPARATED_BONES,
 	};
 
 public:
@@ -68,9 +69,13 @@ public:
 
 	int get_mesh_count(Node *n);
 	Error process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata);
+	Error process_node_single_separated_bones(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata);
 	Error process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll);
 	Ref<MeshDataResource> get_mesh(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale);
+	Ref<MeshDataResource> get_mesh_arrays(Array &arrs, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale);
 
+	Vector<Array> split_mesh_bones(Ref<ArrayMesh> mesh);
+	Array slice_mesh_bone(const Array &array, int bone_idx);
 	Array apply_transforms(Array &array, const Map<StringName, Variant> &p_options);
 	Ref<Shape> scale_shape(Ref<Shape> shape, const Vector3 &scale);
 
