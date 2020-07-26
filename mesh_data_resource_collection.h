@@ -20,43 +20,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "register_types.h"
+#ifndef MESH_DATA_REOURCE_COLLECTION_H
+#define MESH_DATA_REOURCE_COLLECTION_H
+
+#include "core/resource.h"
+
+#include "core/vector.h"
 
 #include "mesh_data_resource.h"
-#include "mesh_data_resource_collection.h"
-#include "nodes/mesh_data_instance.h"
 
-#ifdef TOOLS_ENABLED
-#include "editor/editor_plugin.h"
+class MeshDataResourceCollection : public Resource {
+	GDCLASS(MeshDataResourceCollection, Resource);
 
-#include "plugin_collada/editor_plugin_collada_mdr.h"
+public:
+	void add_mdr(Ref<MeshDataResource> mdr);
 
-#include "plugin_gltf/editor_plugin_gltf_mdr.h"
+	Vector<Variant> get_mdrs();
+	void set_mdrs(const Vector<Variant> &p_arrays);
+
+	MeshDataResourceCollection();
+	~MeshDataResourceCollection();
+
+protected:
+	static void _bind_methods();
+
+private:
+	Vector<Ref<MeshDataResource> > _mdrs;
+};
+
 #endif
-
-#if PROPS_PRESENT
-#include "../props/singleton/prop_utils.h"
-#include "props/prop_data_mesh_data.h"
-#endif
-
-void register_mesh_data_resource_types() {
-	ClassDB::register_class<MeshDataResource>();
-	ClassDB::register_class<MeshDataResourceCollection>();
-
-	ClassDB::register_class<MeshDataInstance>();
-
-#if PROPS_PRESENT
-	ClassDB::register_class<PropDataMeshData>();
-	Ref<PropDataMeshData> processor = Ref<PropDataMeshData>(memnew(PropDataMeshData));
-	PropUtils::add_processor(processor);
-#endif
-
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<EditorPluginColladaMdr>();
-
-	EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
-#endif
-}
-
-void unregister_mesh_data_resource_types() {
-}

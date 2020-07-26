@@ -30,7 +30,10 @@ SOFTWARE.
 #include "scene/resources/shape.h"
 #include "scene/resources/sphere_shape.h"
 
+const String MDRImportPluginBase::BINDING_MDR_IMPORT_TYPE = "Single,Single Merged,Multiple";
+
 void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "import_type", PROPERTY_HINT_ENUM, BINDING_MDR_IMPORT_TYPE), MDRImportPluginBase::MDR_IMPORT_TIME_SINGLE));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "collider_type", PROPERTY_HINT_ENUM, MeshDataResource::BINDING_STRING_COLLIDER_TYPE), MeshDataResource::COLLIDER_TYPE_NONE));
 
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "offset"), Vector3(0, 0, 0)));
@@ -42,6 +45,29 @@ void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int 
 
 bool MDRImportPluginBase::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
 	return true;
+}
+
+Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+	MDRImportPluginBase::MDRImportType type = static_cast<MDRImportPluginBase::MDRImportType>(static_cast<int>(p_options["import_type"]));
+
+	switch (type) {
+		case MDR_IMPORT_TIME_SINGLE: {
+			return process_node_single(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
+		}
+		case MDR_IMPORT_TIME_SINGLE_MERGED: {
+			ERR_FAIL_V_MSG(Error::ERR_UNAVAILABLE, "import type Single Merged is not yet implemented! " + p_source_file);
+		}
+		case MDR_IMPORT_TIME_MULTIPLE: {
+			Ref<MeshDataResourceCollection> coll;
+			coll.instance();
+
+			process_node_multi(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll);
+
+			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
+		}
+	}
+
+	return Error::ERR_PARSE_ERROR;
 }
 
 int MDRImportPluginBase::get_mesh_count(Node *n) {
@@ -79,12 +105,16 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), mdr);
 		}
+
+		if (process_node_single(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata) == Error::OK) {
+			return Error::OK;
+		}
 	}
 
 	return Error::ERR_PARSE_ERROR;
 }
 
-Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll) {
 	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Vector3 scale = p_options["scale"];
@@ -103,14 +133,20 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 
 			node_name = node_name.to_lower();
 
-			Error err = ResourceSaver::save(p_save_path + "_" + node_name + "." + get_save_extension(), mdr);
+			String filename = p_source_file.get_basename() + "_" + node_name + "." + get_save_extension();
+
+			Error err = ResourceSaver::save(filename, mdr);
+
+			Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
+
+			coll->add_mdr(mdrl);
 
 			if (err != Error::OK) {
 				return err;
 			}
 		}
 
-		process_node_multi(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
+		process_node_multi(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll);
 	}
 
 	return Error::OK;

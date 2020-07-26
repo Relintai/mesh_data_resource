@@ -70,7 +70,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 
 	ERR_FAIL_COND_V(!n, Error::ERR_PARSE_ERROR);
 
-	Error err = process_node_single(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
+	Error err = process_node(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
 
 	n->queue_delete();
 	return err;

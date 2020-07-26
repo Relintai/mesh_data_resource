@@ -23,6 +23,7 @@ SOFTWARE.
 #ifndef MDR_IMPORT_PLUGIN_BASE
 #define MDR_IMPORT_PLUGIN_BASE
 
+#include "../mesh_data_resource_collection.h"
 #include "core/array.h"
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
@@ -48,16 +49,26 @@ SOFTWARE.
 #endif
 
 class MDRImportPluginBase : public EditorImportPlugin {
-
 	GDCLASS(MDRImportPluginBase, EditorImportPlugin);
+
+public:
+	static const String BINDING_MDR_IMPORT_TYPE;
+
+	enum MDRImportType {
+		MDR_IMPORT_TIME_SINGLE = 0,
+		MDR_IMPORT_TIME_SINGLE_MERGED,
+		MDR_IMPORT_TIME_MULTIPLE,
+	};
 
 public:
 	virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const;
 	virtual bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const;
 
+	Error process_node(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
+
 	int get_mesh_count(Node *n);
-	Error process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
-	Error process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
+	Error process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata);
+	Error process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll);
 	Ref<MeshDataResource> get_mesh(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale);
 
 	Array apply_transforms(Array &array, const Map<StringName, Variant> &p_options);

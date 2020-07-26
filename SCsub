@@ -13,6 +13,7 @@ if os.path.isdir('../props'):
 module_env.add_source_files(env.modules_sources,"register_types.cpp")
 
 module_env.add_source_files(env.modules_sources,"mesh_data_resource.cpp")
+module_env.add_source_files(env.modules_sources,"mesh_data_resource_collection.cpp")
 
 module_env.add_source_files(env.modules_sources,"plugin/mdr_import_plugin_base.cpp")
 

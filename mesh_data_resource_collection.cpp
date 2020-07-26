@@ -20,43 +20,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "register_types.h"
-
-#include "mesh_data_resource.h"
 #include "mesh_data_resource_collection.h"
-#include "nodes/mesh_data_instance.h"
 
-#ifdef TOOLS_ENABLED
-#include "editor/editor_plugin.h"
+#include "core/version.h"
 
-#include "plugin_collada/editor_plugin_collada_mdr.h"
-
-#include "plugin_gltf/editor_plugin_gltf_mdr.h"
-#endif
-
-#if PROPS_PRESENT
-#include "../props/singleton/prop_utils.h"
-#include "props/prop_data_mesh_data.h"
-#endif
-
-void register_mesh_data_resource_types() {
-	ClassDB::register_class<MeshDataResource>();
-	ClassDB::register_class<MeshDataResourceCollection>();
-
-	ClassDB::register_class<MeshDataInstance>();
-
-#if PROPS_PRESENT
-	ClassDB::register_class<PropDataMeshData>();
-	Ref<PropDataMeshData> processor = Ref<PropDataMeshData>(memnew(PropDataMeshData));
-	PropUtils::add_processor(processor);
-#endif
-
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<EditorPluginColladaMdr>();
-
-	EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
-#endif
+void MeshDataResourceCollection::add_mdr(Ref<MeshDataResource> mdr) {
+	_mdrs.push_back(mdr);
 }
 
-void unregister_mesh_data_resource_types() {
+Vector<Variant> MeshDataResourceCollection::get_mdrs() {
+	Vector<Variant> r;
+	for (int i = 0; i < _mdrs.size(); i++) {
+#if VERSION_MAJOR < 4
+		r.push_back(_mdrs[i].get_ref_ptr());
+#else
+		r.push_back(_mdrs[i]);
+#endif
+	}
+	return r;
+}
+void MeshDataResourceCollection::set_mdrs(const Vector<Variant> &p_arrays) {
+	_mdrs.clear();
+
+	for (int i = 0; i < p_arrays.size(); ++i) {
+		Ref<MeshDataResource> e = Ref<MeshDataResource>(p_arrays[i]);
+
+		_mdrs.push_back(e);
+	}
+}
+
+MeshDataResourceCollection::MeshDataResourceCollection() {
+}
+
+MeshDataResourceCollection::~MeshDataResourceCollection() {
+	_mdrs.clear();
+}
+
+void MeshDataResourceCollection::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("add_mdr", "mdr"), &MeshDataResourceCollection::add_mdr);
+
+	ClassDB::bind_method(D_METHOD("get_mdrs"), &MeshDataResourceCollection::get_mdrs);
+	ClassDB::bind_method(D_METHOD("set_mdrs", "array"), &MeshDataResourceCollection::set_mdrs);
+	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "mdrs"), "set_mdrs", "get_mdrs");
 }

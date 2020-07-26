@@ -29,7 +29,6 @@ SOFTWARE.
 #include "scene/resources/shape.h"
 
 class MeshDataResource : public Resource {
-
 	GDCLASS(MeshDataResource, Resource);
 	RES_BASE_EXTENSION("mdres");
 
