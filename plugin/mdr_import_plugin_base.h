@@ -20,16 +20,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef EDITOR_IMPORT_GLTF_MDR
-#define EDITOR_IMPORT_GLTF_MDR
-
-#include "../plugin/mdr_import_plugin_base.h"
+#ifndef MDR_IMPORT_PLUGIN_BASE
+#define MDR_IMPORT_PLUGIN_BASE
 
 #include "core/array.h"
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
 #include "core/math/transform.h"
 #include "core/ustring.h"
+#include "editor/import/editor_import_plugin.h"
 #include "scene/main/node.h"
 #include "scene/resources/mesh.h"
 
@@ -48,28 +47,24 @@ SOFTWARE.
 #define MeshInstance MeshInstance3D
 #endif
 
-class EditorImportGLTFMdr : public MDRImportPluginBase {
+class MDRImportPluginBase : public EditorImportPlugin {
 
-	GDCLASS(EditorImportGLTFMdr, MDRImportPluginBase);
+	GDCLASS(MDRImportPluginBase, EditorImportPlugin);
 
 public:
-	virtual String get_importer_name() const;
-	virtual String get_visible_name() const;
-	virtual void get_recognized_extensions(List<String> *p_extensions) const;
-	virtual String get_save_extension() const;
-	virtual String get_resource_type() const;
-	virtual float get_priority() const;
+	virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const;
+	virtual bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const;
 
-	virtual int get_preset_count() const;
-	virtual String get_preset_name(int p_idx) const;
+	int get_mesh_count(Node *n);
+	Error process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
+	Error process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
+	Ref<MeshDataResource> get_mesh(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale);
 
-	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
+	Array apply_transforms(Array &array, const Map<StringName, Variant> &p_options);
+	Ref<Shape> scale_shape(Ref<Shape> shape, const Vector3 &scale);
 
-	EditorImportGLTFMdr();
-	~EditorImportGLTFMdr();
-
-private:
-	Ref<EditorSceneImporterGLTF> _importer;
+	MDRImportPluginBase();
+	~MDRImportPluginBase();
 };
 
 #endif
