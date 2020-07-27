@@ -30,7 +30,7 @@ SOFTWARE.
 #include "scene/resources/shape.h"
 #include "scene/resources/sphere_shape.h"
 
-const String MDRImportPluginBase::BINDING_MDR_IMPORT_TYPE = "Single,Single Merged,Multiple,Single - Separate Bone Groups";
+const String MDRImportPluginBase::BINDING_MDR_IMPORT_TYPE = "Single,Multiple";
 
 void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "import_type", PROPERTY_HINT_ENUM, BINDING_MDR_IMPORT_TYPE), MDRImportPluginBase::MDR_IMPORT_TIME_SINGLE));
@@ -52,9 +52,9 @@ Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, co
 		case MDR_IMPORT_TIME_SINGLE: {
 			return process_node_single(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
 		}
-		case MDR_IMPORT_TIME_SINGLE_MERGED: {
-			ERR_FAIL_V_MSG(Error::ERR_UNAVAILABLE, "import type Single Merged is not yet implemented! " + p_source_file);
-		}
+		//case MDR_IMPORT_TIME_SINGLE_MERGED: {
+		//	ERR_FAIL_V_MSG(Error::ERR_UNAVAILABLE, "import type Single Merged is not yet implemented! " + p_source_file);
+		//}
 		case MDR_IMPORT_TIME_MULTIPLE: {
 			Ref<MeshDataResourceCollection> coll;
 			coll.instance();
@@ -63,9 +63,9 @@ Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, co
 
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
 		}
-		case MDR_IMPORT_TIME_SINGLE_WITH_SEPARATED_BONES: {
-			return process_node_single_separated_bones(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
-		}
+			//case MDR_IMPORT_TIME_SINGLE_WITH_SEPARATED_BONES: {
+			//	return process_node_single_separated_bones(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
+			//}
 	}
 
 	return Error::ERR_PARSE_ERROR;
