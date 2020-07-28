@@ -37,7 +37,7 @@ if you set it to multiple, you get a MeshDataResourceCollection as the main reso
 
 Since MeshDataResource can hold collider information, these importers can create this for you. There are quite a few options for it:
 
-![Colliders](screenshots/import2.png)
+![Colliders](screenshots/import_2.png)
 
 ## Building
 
