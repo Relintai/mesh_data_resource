@@ -1,45 +1,45 @@
 # Mesh data resource Module
 
-A c++ Godot engine module, that adds a resource, which contains raw mesh data for merging, and collider information.
+A c++ Godot engine module, that adds a resource, which contains raw mesh data for merging and collider information.
 
 The module also comes with importers (gltf, and collada for now), you can import 3d models as MeshDataResources with these.
 
-# Optional Dependencies
+## Optional Dependencies
 
-`https://github.com/Relintai/props`: If present, you also get a prop importer for MeshDatainstances.
+`https://github.com/Relintai/props`: If present, you also get a prop importer for MeshDataInstances.
 
-# Pre-built binaries
+## Pre-built binaries
 
 You can grab a pre-built editor binary from the [Broken Seals](https://github.com/Relintai/broken_seals/releases) 
 repo, should you want to. It contains all my modules.
 
-# MeshDataResource
+## MeshDataResource
 
 The resource that holds mesh and collider data.
 
-# MeshDataResourceCollection
+## MeshDataResourceCollection
 
 Holds a list of MeshDataResources.
 
-# MeshDataInstance
+## MeshDataInstance
 
 You can easily put MeshDataResources into the scene with these. They are equivalent to MeshInstances, except they work 
 with MeshDataResources.
 
-# Importers
+## Importers
 
 In order to import a 3d model as a MeshDataResource, select the model, go to the import tab, and switch the import type to `<type> MDR`. Like:
 
-![Broken Seals](screenshots/import.jpg)
+![Import Tab](screenshots/import.png)
 
 If you set the import type to single, the importers will convert the first model that they encounter into a MeshDataResource, then save that,
 if you set it to multiple, you get a MeshDataResourceCollection as the main resource, and also all encountered models as files separately.
 
 Since MeshDataResource can hold collider information, these importers can create this for you. There are quite a few options for it:
 
-![Broken Seals](screenshots/import2.jpg)
+![Colliders](screenshots/import2.png)
 
-# Building
+## Building
 
 1. Get the source code for the engine.
 
