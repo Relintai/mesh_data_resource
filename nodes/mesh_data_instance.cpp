@@ -1,5 +1,7 @@
 #include "mesh_data_instance.h"
 
+#include "core/version.h"
+
 #if TEXTURE_PACKER_PRESENT
 #include "../../texture_packer/texture_resource/packer_image_resource.h"
 #endif
@@ -69,10 +71,13 @@ void MeshDataInstance::setup_mesh() {
 	if (!mesh.is_valid()) {
 		mesh.instance();
 	}
-
+#if VERSION_MAJOR < 4
 	for (int i = 0; i < mesh->get_surface_count(); ++i) {
 		mesh->surface_remove(i);
 	}
+#else
+	mesh->clear_surfaces();
+#endif
 
 	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
 
@@ -107,7 +112,11 @@ void MeshDataInstance::setup_material_texture() {
 
 			Ref<ImageTexture> tex;
 			tex.instance();
+#if VERSION_MAJOR < 4
 			tex->create_from_image(i, 0);
+#else
+			tex->create_from_image(i);
+#endif
 
 			if (sm.is_valid()) {
 				sm->set_texture(SpatialMaterial::TEXTURE_ALBEDO, tex);

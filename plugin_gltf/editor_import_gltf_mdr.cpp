@@ -22,14 +22,6 @@ SOFTWARE.
 
 #include "editor_import_gltf_mdr.h"
 
-#include "scene/resources/box_shape.h"
-#include "scene/resources/capsule_shape.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
-#include "scene/resources/cylinder_shape.h"
-#include "scene/resources/shape.h"
-#include "scene/resources/sphere_shape.h"
-
 String EditorImportGLTFMdr::get_importer_name() const {
 	return "gltf_mdr";
 }

@@ -22,6 +22,10 @@ SOFTWARE.
 
 #include "mdr_import_plugin_base.h"
 
+#include "core/version.h"
+
+#if VERSION_MAJOR < 4
+
 #include "scene/resources/box_shape.h"
 #include "scene/resources/capsule_shape.h"
 #include "scene/resources/concave_polygon_shape.h"
@@ -29,6 +33,41 @@ SOFTWARE.
 #include "scene/resources/cylinder_shape.h"
 #include "scene/resources/shape.h"
 #include "scene/resources/sphere_shape.h"
+
+#else
+
+#include "scene/resources/box_shape_3d.h"
+#include "scene/resources/capsule_shape_3d.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
+#include "scene/resources/cylinder_shape_3d.h"
+#include "scene/resources/shape_3d.h"
+#include "scene/resources/sphere_shape_3d.h"
+
+#define BoxShape BoxShape3D
+#define CapsuleShape CapsuleShape3D
+#define ConcavePolygonShape ConcavePolygonShape3D
+#define ConvexPolygonShape ConvexPolygonShape3D
+#define CylinderShape CylinderShape3D
+#define Shape Shape3D
+#define SphereShape SphereShape3D
+
+#define PoolVector3Array PackedVector3Array
+#define PoolVector2Array PackedVector2Array
+#define PoolColorArray PackedColorArray
+#define PoolIntArray PackedInt64Array
+#define PoolRealArray PackedFloat32Array
+#define PoolByteArray PackedByteArray
+
+typedef class RenderingServer VisualServer;
+typedef class RenderingServer VS;
+
+template <class N>
+class Vector;
+template <class N>
+using PoolVector = Vector<N>;
+
+#endif
 
 const String MDRImportPluginBase::BINDING_MDR_IMPORT_TYPE = "Single,Multiple";
 
@@ -242,7 +281,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh(MeshInstance *mi, const Map<
 			m.instance();
 			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-			Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+			Vector<Ref<Shape>> shapes = mesh->convex_decompose();
 
 			for (int j = 0; j < shapes.size(); ++j) {
 				scale_shape(shapes[j], scale);
@@ -381,7 +420,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 		m.instance();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-		Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+		Vector<Ref<Shape>> shapes = mesh->convex_decompose();
 
 		for (int j = 0; j < shapes.size(); ++j) {
 			scale_shape(shapes[j], scale);
@@ -695,26 +734,22 @@ Array MDRImportPluginBase::apply_transforms(Array &array, const Map<StringName, 
 }
 
 Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &scale) {
-
 	if (shape.is_null())
 		return shape;
 
 	if (Object::cast_to<SphereShape>(*shape)) {
-
 		Ref<SphereShape> ss = shape;
 
 		ss->set_radius(ss->get_radius() * MAX(scale.x, MAX(scale.y, scale.z)));
 	}
 
 	if (Object::cast_to<BoxShape>(*shape)) {
-
 		Ref<BoxShape> bs = shape;
 
 		bs->set_extents(bs->get_extents() * scale);
 	}
 
 	if (Object::cast_to<CapsuleShape>(*shape)) {
-
 		Ref<CapsuleShape> cs = shape;
 
 		float sc = MAX(scale.x, MAX(scale.y, scale.z));
@@ -724,7 +759,6 @@ Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &sca
 	}
 
 	if (Object::cast_to<CylinderShape>(*shape)) {
-
 		Ref<CylinderShape> cs = shape;
 
 		float sc = MAX(scale.x, MAX(scale.y, scale.z));
@@ -734,7 +768,6 @@ Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &sca
 	}
 
 	if (Object::cast_to<ConcavePolygonShape>(*shape)) {
-
 		Ref<ConcavePolygonShape> cps = shape;
 
 		PoolVector3Array arr = cps->get_faces();
@@ -749,7 +782,6 @@ Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &sca
 	}
 
 	if (Object::cast_to<ConvexPolygonShape>(*shape)) {
-
 		Ref<ConvexPolygonShape> cps = shape;
 
 		PoolVector3Array arr = cps->get_points();

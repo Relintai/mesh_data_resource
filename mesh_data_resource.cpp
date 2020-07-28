@@ -64,7 +64,7 @@ Vector<Variant> MeshDataResource::get_collision_shapes() {
 		r.push_back(_collision_shapes[i].transform);
 		r.push_back(_collision_shapes[i].shape.get_ref_ptr());
 #else
-		r.push_back(_collision_shapes[i].offset);
+		r.push_back(_collision_shapes[i].transform);
 		r.push_back(_collision_shapes[i].shape);
 #endif
 	}

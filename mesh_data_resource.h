@@ -25,8 +25,16 @@ SOFTWARE.
 
 #include "core/array.h"
 #include "core/resource.h"
+#include "core/version.h"
 #include "scene/resources/mesh.h"
+
+#if VERSION_MAJOR < 4
 #include "scene/resources/shape.h"
+#else
+#include "scene/resources/shape_3d.h"
+
+#define Shape Shape3D
+#endif
 
 class MeshDataResource : public Resource {
 	GDCLASS(MeshDataResource, Resource);

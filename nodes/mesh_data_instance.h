@@ -31,6 +31,7 @@ SOFTWARE.
 #else
 #include "scene/3d/mesh_instance_3d.h"
 
+#define SpatialMaterial StandardMaterial3D
 #define MeshInstance MeshInstance3D
 #define Texture Texture2D
 #endif
