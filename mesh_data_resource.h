@@ -58,6 +58,9 @@ public:
 	Array get_array();
 	void set_array(const Array &p_arrays);
 
+	AABB get_aabb();
+	void set_aabb(const AABB &aabb);
+
 	void add_collision_shape(const Transform &transform, const Ref<Shape> &shape);
 	Ref<Shape> get_collision_shape(const int index);
 	Transform get_collision_shape_offset(const int index);
@@ -65,6 +68,8 @@ public:
 
 	Vector<Variant> get_collision_shapes();
 	void set_collision_shapes(const Vector<Variant> &p_arrays);
+
+	void recompute_aabb();
 
 	MeshDataResource();
 	~MeshDataResource();
@@ -80,6 +85,7 @@ protected:
 
 private:
 	Array _arrays;
+	AABB _aabb;
 	Vector<MDRData> _collision_shapes;
 };
 

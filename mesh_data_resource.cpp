@@ -33,6 +33,15 @@ void MeshDataResource::set_array(const Array &p_arrays) {
 	_arrays.clear();
 
 	_arrays = p_arrays.duplicate(true);
+
+	recompute_aabb();
+}
+
+AABB MeshDataResource::get_aabb() {
+	return _aabb;
+}
+void MeshDataResource::set_aabb(const AABB &aabb) {
+	_aabb = aabb;
 }
 
 void MeshDataResource::add_collision_shape(const Transform &transform, const Ref<Shape> &shape) {
@@ -84,6 +93,27 @@ void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
 	}
 }
 
+void MeshDataResource::recompute_aabb() {
+
+	Variant arr = _arrays[Mesh::ARRAY_VERTEX];
+	PoolVector<Vector3> vertices = arr;
+	int len = vertices.size();
+	ERR_FAIL_COND(len == 0);
+	PoolVector<Vector3>::Read r = vertices.read();
+	const Vector3 *vtx = r.ptr();
+
+	AABB aabb;
+	for (int i = 0; i < len; i++) {
+
+		if (i == 0)
+			aabb.position = vtx[i];
+		else
+			aabb.expand_to(vtx[i]);
+	}
+
+	_aabb = aabb;
+}
+
 MeshDataResource::MeshDataResource() {
 }
 
@@ -97,6 +127,10 @@ void MeshDataResource::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_array", "array"), &MeshDataResource::set_array);
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "array"), "set_array", "get_array");
 
+	ClassDB::bind_method(D_METHOD("get_aabb"), &MeshDataResource::get_aabb);
+	ClassDB::bind_method(D_METHOD("set_aabb", "array"), &MeshDataResource::set_aabb);
+	ADD_PROPERTY(PropertyInfo(Variant::AABB, "aabb"), "set_aabb", "get_aabb");
+
 	ClassDB::bind_method(D_METHOD("get_collision_shapes"), &MeshDataResource::get_collision_shapes);
 	ClassDB::bind_method(D_METHOD("set_collision_shapes", "array"), &MeshDataResource::set_collision_shapes);
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "collision_shapes"), "set_collision_shapes", "get_collision_shapes");
@@ -104,4 +138,6 @@ void MeshDataResource::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_collision_shape", "shape"), &MeshDataResource::add_collision_shape);
 	ClassDB::bind_method(D_METHOD("get_collision_shape", "index"), &MeshDataResource::get_collision_shape);
 	ClassDB::bind_method(D_METHOD("get_collision_shape_count"), &MeshDataResource::get_collision_shape_count);
+
+	ClassDB::bind_method(D_METHOD("recompute_aabb"), &MeshDataResource::recompute_aabb);
 }

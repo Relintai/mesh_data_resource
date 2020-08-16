@@ -281,7 +281,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh(MeshInstance *mi, const Map<
 			m.instance();
 			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-			Vector<Ref<Shape>> shapes = mesh->convex_decompose();
+			Vector<Ref<Shape> > shapes = mesh->convex_decompose();
 
 			for (int j = 0; j < shapes.size(); ++j) {
 				scale_shape(shapes[j], scale);
@@ -420,7 +420,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 		m.instance();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-		Vector<Ref<Shape>> shapes = mesh->convex_decompose();
+		Vector<Ref<Shape> > shapes = mesh->convex_decompose();
 
 		for (int j = 0; j < shapes.size(); ++j) {
 			scale_shape(shapes[j], scale);
