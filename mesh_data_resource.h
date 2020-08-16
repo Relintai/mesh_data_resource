@@ -58,7 +58,7 @@ public:
 	Array get_array();
 	void set_array(const Array &p_arrays);
 
-	AABB get_aabb();
+	AABB get_aabb() const;
 	void set_aabb(const AABB &aabb);
 
 	void add_collision_shape(const Transform &transform, const Ref<Shape> &shape);

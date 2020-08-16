@@ -37,7 +37,7 @@ void MeshDataResource::set_array(const Array &p_arrays) {
 	recompute_aabb();
 }
 
-AABB MeshDataResource::get_aabb() {
+AABB MeshDataResource::get_aabb() const {
 	return _aabb;
 }
 void MeshDataResource::set_aabb(const AABB &aabb) {
