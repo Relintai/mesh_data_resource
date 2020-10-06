@@ -24,6 +24,10 @@ SOFTWARE.
 
 #include "core/version.h"
 
+#if VERSION_MAJOR >= 4
+#define PoolVector Vector
+#endif
+
 const String MeshDataResource::BINDING_STRING_COLLIDER_TYPE = "None,Trimesh Collision Shape,Single Convex Collision Shape,Multiple Convex Collision Shapes,Approximated Box,Approximated Capsule,Approximated Cylinder,Approximated Sphere";
 
 Array MeshDataResource::get_array() {
@@ -94,17 +98,20 @@ void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
 }
 
 void MeshDataResource::recompute_aabb() {
-
 	Variant arr = _arrays[Mesh::ARRAY_VERTEX];
 	PoolVector<Vector3> vertices = arr;
 	int len = vertices.size();
 	ERR_FAIL_COND(len == 0);
+
+#if VERSION_MAJOR < 4
 	PoolVector<Vector3>::Read r = vertices.read();
 	const Vector3 *vtx = r.ptr();
+#else
+	const Vector3 *vtx = vertices.ptr();
+#endif
 
 	AABB aabb;
 	for (int i = 0; i < len; i++) {
-
 		if (i == 0)
 			aabb.position = vtx[i];
 		else
