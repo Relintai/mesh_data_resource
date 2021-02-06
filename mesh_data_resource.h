@@ -23,8 +23,16 @@ SOFTWARE.
 #ifndef MESH_DATA_REOURCE_H
 #define MESH_DATA_REOURCE_H
 
-#include "core/array.h"
+#include "core/version.h"
+
+#if VERSION_MAJOR > 3
+#include "core/io/resource.h"
+#include "core/variant/array.h"
+#else
 #include "core/resource.h"
+#include "core/array.h"
+#endif
+
 #include "core/version.h"
 #include "scene/resources/mesh.h"
 

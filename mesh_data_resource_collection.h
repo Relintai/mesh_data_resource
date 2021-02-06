@@ -23,9 +23,15 @@ SOFTWARE.
 #ifndef MESH_DATA_REOURCE_COLLECTION_H
 #define MESH_DATA_REOURCE_COLLECTION_H
 
-#include "core/resource.h"
+#include "core/version.h"
 
+#if VERSION_MAJOR > 3
+#include "core/io/resource.h"
+#include "core/templates/vector.h"
+#else
+#include "core/resource.h"
 #include "core/vector.h"
+#endif
 
 #include "mesh_data_resource.h"
 

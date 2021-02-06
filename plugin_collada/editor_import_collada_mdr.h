@@ -23,13 +23,21 @@ SOFTWARE.
 #ifndef EDITOR_IMPORT_COLLADA_MDR
 #define EDITOR_IMPORT_COLLADA_MDR
 
+#include "core/version.h"
+
+#if VERSION_MAJOR > 3
+#include "core/string/ustring.h"
+#include "core/variant/array.h"
+#else
+#include "core/ustring.h"
+#include "core/array.h"
+#endif
+
 #include "../plugin/mdr_import_plugin_base.h"
 
-#include "core/array.h"
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
 #include "core/math/transform.h"
-#include "core/ustring.h"
 #include "editor/import/editor_import_plugin.h"
 #include "scene/main/node.h"
 #include "scene/resources/mesh.h"

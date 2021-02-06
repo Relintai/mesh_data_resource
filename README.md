@@ -49,6 +49,7 @@ If you want Godot 3.2:
 If you want Godot 4.0:
 ```git clone https://github.com/godotengine/godot.git godot```
 
+[last tested commit for 4.0](https://github.com/godotengine/godot/commit/b7e10141197fdd9b0dbc4cfa7890329510d36540)
 
 2. Go into Godot's modules directory.
 

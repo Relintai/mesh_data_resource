@@ -23,26 +23,35 @@ SOFTWARE.
 #ifndef EDITOR_IMPORT_GLTF_MDR
 #define EDITOR_IMPORT_GLTF_MDR
 
+#include "core/version.h"
+
+#if VERSION_MAJOR > 3
+#include "core/string/ustring.h"
+#include "core/variant/array.h"
+#else
+#include "core/ustring.h"
+#include "core/array.h"
+#endif
+
 #include "../plugin/mdr_import_plugin_base.h"
 
-#include "core/array.h"
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
 #include "core/math/transform.h"
-#include "core/ustring.h"
 #include "scene/main/node.h"
 #include "scene/resources/mesh.h"
 
 #include "../mesh_data_resource.h"
-#include "editor/import/editor_scene_importer_gltf.h"
 
 #include "core/math/transform.h"
 
 #include "core/version.h"
 
 #if VERSION_MAJOR < 4
+#include "editor/import/editor_scene_importer_gltf.h"
 #include "scene/3d/mesh_instance.h"
 #else
+#include "../../gltf/editor_scene_importer_gltf.h"
 #include "scene/3d/mesh_instance_3d.h"
 
 #define MeshInstance MeshInstance3D

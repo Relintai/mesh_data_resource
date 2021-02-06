@@ -23,18 +23,26 @@ SOFTWARE.
 #ifndef MDR_IMPORT_PLUGIN_BASE
 #define MDR_IMPORT_PLUGIN_BASE
 
-#include "../mesh_data_resource_collection.h"
+#include "core/version.h"
+
+#if VERSION_MAJOR > 3
+#include "core/string/ustring.h"
+#include "core/variant/array.h"
+#else
+#include "core/ustring.h"
 #include "core/array.h"
+#endif
+
+#include "../mesh_data_resource_collection.h"
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
 #include "core/math/transform.h"
-#include "core/ustring.h"
 #include "editor/import/editor_import_plugin.h"
 #include "scene/main/node.h"
 #include "scene/resources/mesh.h"
 
 #include "../mesh_data_resource.h"
-#include "editor/import/editor_scene_importer_gltf.h"
+
 
 #include "core/math/transform.h"
 
@@ -42,8 +50,10 @@ SOFTWARE.
 
 #if VERSION_MAJOR < 4
 #include "scene/3d/mesh_instance.h"
+#include "editor/import/editor_scene_importer_gltf.h"
 #else
 #include "scene/3d/mesh_instance_3d.h"
+#include "../../gltf/editor_scene_importer_gltf.h"
 
 #define MeshInstance MeshInstance3D
 #endif

@@ -281,7 +281,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh(MeshInstance *mi, const Map<
 			m.instance();
 			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-			Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+			Vector<Ref<Shape>> shapes = mesh->convex_decompose();
 
 			for (int j = 0; j < shapes.size(); ++j) {
 				scale_shape(shapes[j], scale);
@@ -301,7 +301,11 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh(MeshInstance *mi, const Map<
 			AABB aabb = m->get_aabb();
 			Vector3 size = aabb.get_size();
 
+#if VERSION_MAJOR > 3
+			shape->set_size(size * 0.5);
+#else
 			shape->set_extents(size * 0.5);
+#endif
 
 			Vector3 pos = aabb.position;
 			pos += size / 2.0;
@@ -420,7 +424,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 		m.instance();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-		Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+		Vector<Ref<Shape>> shapes = mesh->convex_decompose();
 
 		for (int j = 0; j < shapes.size(); ++j) {
 			scale_shape(shapes[j], scale);
@@ -440,7 +444,11 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 		AABB aabb = m->get_aabb();
 		Vector3 size = aabb.get_size();
 
+#if VERSION_MAJOR > 3
+		shape->set_size(size * 0.5);
+#else
 		shape->set_extents(size * 0.5);
+#endif
 
 		Vector3 pos = aabb.position;
 		pos += size / 2.0;
@@ -746,7 +754,11 @@ Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &sca
 	if (Object::cast_to<BoxShape>(*shape)) {
 		Ref<BoxShape> bs = shape;
 
+#if VERSION_MAJOR > 3
+		bs->set_size(bs->get_size() * scale);
+#else
 		bs->set_extents(bs->get_extents() * scale);
+#endif
 	}
 
 	if (Object::cast_to<CapsuleShape>(*shape)) {
