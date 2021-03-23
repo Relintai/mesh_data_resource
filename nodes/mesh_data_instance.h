@@ -61,7 +61,7 @@ public:
 	Ref<Material> get_material();
 	void set_material(const Ref<Material> &mat);
 
-	void setup_mesh();
+	void refresh();
 	void setup_material_texture();
 
 	MeshDataInstance();

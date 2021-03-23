@@ -35,18 +35,12 @@ Ref<MeshDataResource> MeshDataInstance::get_mesh_data() {
 	return _mesh;
 }
 void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
-	if (_mesh == mesh) {
-		return;
-	}
-
 	_mesh = mesh;
 
-	if (_mesh.is_valid()) {
-		if (is_inside_tree()) {
-			setup_mesh();
-		} else {
-			_dirty = true;
-		}
+	if (is_inside_tree()) {
+		refresh();
+	} else {
+		_dirty = true;
 	}
 }
 
@@ -57,6 +51,7 @@ void MeshDataInstance::set_texture(const Ref<Texture> &texture) {
 	_texture = texture;
 
 	setup_material_texture();
+	refresh();
 }
 
 Ref<Material> MeshDataInstance::get_material() {
@@ -66,20 +61,16 @@ void MeshDataInstance::set_material(const Ref<Material> &mat) {
 	_material = mat;
 
 	setup_material_texture();
+	refresh();
 }
 
-void MeshDataInstance::setup_mesh() {
-	if (!_mesh.is_valid()) {
-		return;
-	}
-
-	Array arr = _mesh->get_array();
-
+void MeshDataInstance::refresh() {
 	Ref<ArrayMesh> mesh = get_mesh();
 
 	if (!mesh.is_valid()) {
 		mesh.instance();
 	}
+
 #if VERSION_MAJOR < 4
 	for (int i = 0; i < mesh->get_surface_count(); ++i) {
 		mesh->surface_remove(i);
@@ -88,17 +79,31 @@ void MeshDataInstance::setup_mesh() {
 	mesh->clear_surfaces();
 #endif
 
-	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
-
-	if (_material.is_valid() && mesh->get_surface_count() > 0) {
-		mesh->surface_set_material(0, _material);
+	//Always check/set mesh in MeshInstance in case it got set to something else. For example got cleared in the editor.
+	if (get_mesh() != mesh) {
+		set_mesh(mesh);
 	}
 
-	if (get_mesh() == mesh) {
+	if (!_mesh.is_valid()) {
 		return;
 	}
 
-	set_mesh(mesh);
+	Array arr = _mesh->get_array();
+
+	if (arr.size() == Mesh::ARRAY_MAX) {
+		Variant varr = arr[Mesh::ARRAY_VERTEX];
+		PoolVector<Vector3> vertices = varr;
+
+		if (vertices.size() == 0) {
+			return;
+		}
+
+		mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+
+		if (_material.is_valid() && mesh->get_surface_count() > 0) {
+			mesh->surface_set_material(0, _material);
+		}
+	}
 }
 
 void MeshDataInstance::setup_material_texture() {
@@ -155,9 +160,7 @@ void MeshDataInstance::_notification(int p_what) {
 			if (_dirty) {
 				_dirty = false;
 
-				if (_mesh.is_valid()) {
-					setup_mesh();
-				}
+				refresh();
 			}
 		}
 	}
@@ -183,4 +186,6 @@ void MeshDataInstance::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_material"), &MeshDataInstance::get_material);
 	ClassDB::bind_method(D_METHOD("set_material", "value"), &MeshDataInstance::set_material);
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_material", "get_material");
+
+	ClassDB::bind_method(D_METHOD("refresh"), &MeshDataInstance::refresh);
 }
