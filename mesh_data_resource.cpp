@@ -101,11 +101,6 @@ void MeshDataResource::recompute_aabb() {
 	}
 
 	Variant arr = _arrays[Mesh::ARRAY_VERTEX];
-
-	if (arr.get_type() != Variant::POOL_VECTOR3_ARRAY) {
-		return;
-	}
-
 	PoolVector<Vector3> vertices = arr;
 	int len = vertices.size();
 	
