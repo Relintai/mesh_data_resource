@@ -34,9 +34,7 @@ Array MeshDataResource::get_array() {
 	return _arrays;
 }
 void MeshDataResource::set_array(const Array &p_arrays) {
-	_arrays.clear();
-
-	_arrays = p_arrays.duplicate(true);
+	_arrays = p_arrays;
 
 	recompute_aabb();
 }
