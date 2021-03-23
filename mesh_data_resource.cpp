@@ -98,10 +98,22 @@ void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
 }
 
 void MeshDataResource::recompute_aabb() {
+	if (_arrays.size() == 0) {
+		return;
+	}
+
 	Variant arr = _arrays[Mesh::ARRAY_VERTEX];
+
+	if (arr.get_type() != Variant::POOL_VECTOR3_ARRAY) {
+		return;
+	}
+
 	PoolVector<Vector3> vertices = arr;
 	int len = vertices.size();
-	ERR_FAIL_COND(len == 0);
+	
+	if (len == 0) {
+		return;
+	}
 
 #if VERSION_MAJOR < 4
 	PoolVector<Vector3>::Read r = vertices.read();
