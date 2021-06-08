@@ -50,7 +50,15 @@ SOFTWARE.
 
 #if VERSION_MAJOR < 4
 #include "scene/3d/mesh_instance.h"
+
+
+#if VERSION_MINOR < 4
 #include "editor/import/editor_scene_importer_gltf.h"
+#else
+#include "../../gltf/editor_scene_importer_gltf.h"
+#endif
+
+
 #else
 #include "scene/3d/mesh_instance_3d.h"
 #include "../../gltf/editor_scene_importer_gltf.h"

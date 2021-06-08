@@ -48,7 +48,13 @@ SOFTWARE.
 #include "core/version.h"
 
 #if VERSION_MAJOR < 4
+
+#if VERSION_MINOR < 4
 #include "editor/import/editor_scene_importer_gltf.h"
+#else
+#include "../../gltf/editor_scene_importer_gltf.h"
+#endif
+
 #include "scene/3d/mesh_instance.h"
 #else
 #include "../../gltf/editor_scene_importer_gltf.h"
