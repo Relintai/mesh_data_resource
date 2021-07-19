@@ -57,9 +57,15 @@ String EditorImportColladaMdr::get_preset_name(int p_idx) const {
 Error EditorImportColladaMdr::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 	//MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
-	Node *n = _importer->import_scene(p_source_file, 0, 15);
+	Error erri;
+
+	Node *n = _importer->import_scene(p_source_file, 0, 15, nullptr, &erri);
 
 	ERR_FAIL_COND_V(!n, Error::ERR_PARSE_ERROR);
+
+	if (erri != Error::OK) {
+		return erri;
+	}
 
 	Error err = process_node(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
 
