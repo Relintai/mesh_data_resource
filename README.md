@@ -7,6 +7,7 @@ The module also comes with importers (gltf, and collada for now), you can import
 ## Optional Dependencies
 
 `https://github.com/Relintai/props`: If present, you also get a prop importer for MeshDataInstances.
+`https://github.com/Relintai/mesh_utils`: If present, you get mesh simplification/optimization options at import.
 
 ## Pre-built binaries
 

@@ -69,10 +69,27 @@ using PoolVector = Vector<N>;
 
 #endif
 
+#if MESH_UTILS_PRESENT
+#include "../../mesh_utils/mesh_utils.h"
+#endif
+
 const String MDRImportPluginBase::BINDING_MDR_IMPORT_TYPE = "Single,Multiple";
+const String MDRImportPluginBase::BINDING_MDR_OPTIMIZATION_TYPE = "Off"
+#if MESH_UTILS_PRESENT
+																  ",Remove Doubles,Remove Doubles Interpolate Normals"
+#endif
+		;
 
 void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "import_type", PROPERTY_HINT_ENUM, BINDING_MDR_IMPORT_TYPE), MDRImportPluginBase::MDR_IMPORT_TIME_SINGLE));
+
+#if MESH_UTILS_PRESENT
+	//Normal remove doubles should be the default if mesh utils present as it shouldn't visibly change the mesh
+	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "optimization_type", PROPERTY_HINT_ENUM, BINDING_MDR_OPTIMIZATION_TYPE), MDRImportPluginBase::MDR_OPTIMIZATION_REMOVE_DOUBLES));
+#else
+	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "optimization_type", PROPERTY_HINT_ENUM, BINDING_MDR_OPTIMIZATION_TYPE), MDRImportPluginBase::MDR_OPTIMIZATION_OFF));
+#endif
+
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "collider_type", PROPERTY_HINT_ENUM, MeshDataResource::BINDING_STRING_COLLIDER_TYPE), MeshDataResource::COLLIDER_TYPE_NONE));
 
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "offset"), Vector3(0, 0, 0)));
@@ -127,6 +144,10 @@ int MDRImportPluginBase::get_mesh_count(Node *n) {
 }
 
 Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+#if MESH_UTILS_PRESENT
+	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
+#endif
+
 	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Vector3 scale = p_options["scale"];
@@ -140,6 +161,19 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 			MeshInstance *mi = Object::cast_to<MeshInstance>(c);
 
 			Ref<MeshDataResource> mdr = get_mesh(mi, p_options, collider_type, scale);
+
+#if MESH_UTILS_PRESENT
+			switch (optimization_type) {
+				case MDR_OPTIMIZATION_OFF:
+					break;
+				case MDR_OPTIMIZATION_REMOVE_DOUBLES:
+					mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
+					break;
+				case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
+					mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
+					break;
+			}
+#endif
 
 			ERR_FAIL_COND_V(!mdr.is_valid(), Error::ERR_PARSE_ERROR);
 
@@ -155,6 +189,10 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 }
 
 Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+#if MESH_UTILS_PRESENT
+	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
+#endif
+
 	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Vector3 scale = p_options["scale"];
@@ -185,6 +223,19 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 				if (!mdr.is_valid())
 					continue;
 
+#if MESH_UTILS_PRESENT
+				switch (optimization_type) {
+					case MDR_OPTIMIZATION_OFF:
+						break;
+					case MDR_OPTIMIZATION_REMOVE_DOUBLES:
+						mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
+						break;
+					case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
+						mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
+						break;
+				}
+#endif
+
 				String node_name = c->get_name();
 				node_name = node_name.to_lower();
 				String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(j) + "." + get_save_extension();
@@ -210,6 +261,10 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 }
 
 Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll) {
+#if MESH_UTILS_PRESENT
+	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
+#endif
+
 	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Vector3 scale = p_options["scale"];
@@ -223,6 +278,19 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 			MeshInstance *mi = Object::cast_to<MeshInstance>(c);
 
 			Ref<MeshDataResource> mdr = get_mesh(mi, p_options, collider_type, scale);
+
+#if MESH_UTILS_PRESENT
+			switch (optimization_type) {
+				case MDR_OPTIMIZATION_OFF:
+					break;
+				case MDR_OPTIMIZATION_REMOVE_DOUBLES:
+					mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
+					break;
+				case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
+					mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
+					break;
+			}
+#endif
 
 			String node_name = c->get_name();
 			node_name = node_name.to_lower();

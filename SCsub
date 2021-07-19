@@ -10,6 +10,9 @@ if os.path.isdir('../texture_packer'):
 if os.path.isdir('../props'):
     module_env.Append(CPPDEFINES=['PROPS_PRESENT'])
 
+if os.path.isdir('../mesh_utils'):
+    module_env.Append(CPPDEFINES=['MESH_UTILS_PRESENT'])
+
 module_env.add_source_files(env.modules_sources,"register_types.cpp")
 
 module_env.add_source_files(env.modules_sources,"mesh_data_resource.cpp")

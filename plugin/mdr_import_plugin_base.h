@@ -29,8 +29,8 @@ SOFTWARE.
 #include "core/string/ustring.h"
 #include "core/variant/array.h"
 #else
-#include "core/ustring.h"
 #include "core/array.h"
+#include "core/ustring.h"
 #endif
 
 #include "../mesh_data_resource_collection.h"
@@ -43,7 +43,6 @@ SOFTWARE.
 
 #include "../mesh_data_resource.h"
 
-
 #include "core/math/transform.h"
 
 #include "core/version.h"
@@ -51,17 +50,15 @@ SOFTWARE.
 #if VERSION_MAJOR < 4
 #include "scene/3d/mesh_instance.h"
 
-
 #if VERSION_MINOR < 4
 #include "editor/import/editor_scene_importer_gltf.h"
 #else
 #include "../../gltf/editor_scene_importer_gltf.h"
 #endif
 
-
 #else
-#include "scene/3d/mesh_instance_3d.h"
 #include "../../gltf/editor_scene_importer_gltf.h"
+#include "scene/3d/mesh_instance_3d.h"
 
 #define MeshInstance MeshInstance3D
 #endif
@@ -71,12 +68,21 @@ class MDRImportPluginBase : public EditorImportPlugin {
 
 public:
 	static const String BINDING_MDR_IMPORT_TYPE;
+	static const String BINDING_MDR_OPTIMIZATION_TYPE;
 
 	enum MDRImportType {
 		MDR_IMPORT_TIME_SINGLE = 0,
 		//MDR_IMPORT_TIME_SINGLE_MERGED,
 		MDR_IMPORT_TIME_MULTIPLE,
 		//MDR_IMPORT_TIME_SINGLE_WITH_SEPARATED_BONES,
+	};
+
+	enum MDROptimizationType {
+		MDR_OPTIMIZATION_OFF = 0,
+#if MESH_UTILS_PRESENT
+		MDR_OPTIMIZATION_REMOVE_DOUBLES,
+		MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS,
+#endif
 	};
 
 public:
