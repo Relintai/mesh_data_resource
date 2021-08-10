@@ -15,8 +15,6 @@
 #include "../../texture_packer/texture_resource/packer_image_resource.h"
 #endif
 
-
-
 bool MeshDataInstance::get_snap_to_mesh() const {
 	return _snap_to_mesh;
 }
@@ -90,19 +88,20 @@ void MeshDataInstance::refresh() {
 
 	Array arr = _mesh->get_array();
 
-	if (arr.size() == Mesh::ARRAY_MAX) {
-		Variant varr = arr[Mesh::ARRAY_VERTEX];
-		PoolVector<Vector3> vertices = varr;
+	if (arr.size() != Mesh::ARRAY_MAX) {
+		return;
+	}
 
-		if (vertices.size() == 0) {
-			return;
-		}
+	PoolVector<Vector3> vertices = arr[Mesh::ARRAY_VERTEX];
 
-		mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+	if (vertices.size() == 0) {
+		return;
+	}
 
-		if (_material.is_valid() && mesh->get_surface_count() > 0) {
-			mesh->surface_set_material(0, _material);
-		}
+	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+
+	if (_material.is_valid() && mesh->get_surface_count() > 0) {
+		mesh->surface_set_material(0, _material);
 	}
 }
 
