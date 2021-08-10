@@ -27,12 +27,12 @@ SOFTWARE.
 #include "scene/resources/texture.h"
 
 #if VERSION_MAJOR < 4
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/spatial.h"
 #else
-#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/node_3d.h"
 
 #define SpatialMaterial StandardMaterial3D
-#define MeshInstance MeshInstance3D
+#define Spatial Node3D
 #define Texture Texture2D
 #endif
 
@@ -42,8 +42,8 @@ SOFTWARE.
 
 class PropInstance;
 
-class MeshDataInstance : public MeshInstance {
-	GDCLASS(MeshDataInstance, MeshInstance);
+class MeshDataInstance : public Spatial {
+	GDCLASS(MeshDataInstance, Spatial);
 
 public:
 	bool get_snap_to_mesh() const;
@@ -63,6 +63,7 @@ public:
 
 	void refresh();
 	void setup_material_texture();
+	void free_meshes();
 
 	MeshDataInstance();
 	~MeshDataInstance();
@@ -78,6 +79,9 @@ private:
 	Ref<MeshDataResource> _mesh;
 	Ref<Texture> _texture;
 	Ref<Material> _material;
+
+	RID _mesh_rid;
+	RID _mesh_instance;
 };
 
 #endif

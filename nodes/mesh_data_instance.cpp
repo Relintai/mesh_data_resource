@@ -7,8 +7,12 @@
 
 #if VERSION_MAJOR < 4
 #include "core/image.h"
+
+#define GET_WORLD get_world
 #else
 #include "core/io/image.h"
+
+#define GET_WORLD get_world_3d
 #endif
 
 #if TEXTURE_PACKER_PRESENT
@@ -35,11 +39,7 @@ Ref<MeshDataResource> MeshDataInstance::get_mesh_data() {
 void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
 	_mesh = mesh;
 
-	if (is_inside_tree()) {
-		refresh();
-	} else {
-		_dirty = true;
-	}
+	refresh();
 }
 
 Ref<Texture> MeshDataInstance::get_texture() {
@@ -63,24 +63,25 @@ void MeshDataInstance::set_material(const Ref<Material> &mat) {
 }
 
 void MeshDataInstance::refresh() {
-	Ref<ArrayMesh> mesh = get_mesh();
-
-	if (!mesh.is_valid()) {
-		mesh.instance();
+	if (!is_inside_tree()) {
+		return;
 	}
 
-#if VERSION_MAJOR < 4
-	for (int i = 0; i < mesh->get_surface_count(); ++i) {
-		mesh->surface_remove(i);
-	}
-#else
-	mesh->clear_surfaces();
-#endif
+	if (_mesh_rid == RID()) {
+		_mesh_instance = VisualServer::get_singleton()->instance_create();
 
-	//Always check/set mesh in MeshInstance in case it got set to something else. For example got cleared in the editor.
-	if (get_mesh() != mesh) {
-		set_mesh(mesh);
+		if (GET_WORLD().is_valid())
+			VS::get_singleton()->instance_set_scenario(_mesh_instance, GET_WORLD()->get_scenario());
+
+		_mesh_rid = VisualServer::get_singleton()->mesh_create();
+
+		VS::get_singleton()->instance_set_base(_mesh_instance, _mesh_rid);
+		VS::get_singleton()->instance_set_transform(_mesh_instance, get_transform());
+
+		VS::get_singleton()->instance_set_visible(_mesh_instance, true);
 	}
+
+	VisualServer::get_singleton()->mesh_clear(_mesh_rid);
 
 	if (!_mesh.is_valid()) {
 		return;
@@ -98,19 +99,31 @@ void MeshDataInstance::refresh() {
 		return;
 	}
 
-	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+	VisualServer::get_singleton()->mesh_add_surface_from_arrays(_mesh_rid, VisualServer::PRIMITIVE_TRIANGLES, arr);
 
-	if (_material.is_valid() && mesh->get_surface_count() > 0) {
-		mesh->surface_set_material(0, _material);
+	if (_material.is_valid()) {
+		VisualServer::get_singleton()->mesh_surface_set_material(_mesh_rid, 0, _material->get_rid());
 	}
 }
 
 void MeshDataInstance::setup_material_texture() {
-	if (!_texture.is_valid()) {
+	if (!is_inside_tree()) {
 		return;
 	}
 
-	if (_material.is_valid()) {
+	if (!_texture.is_valid()) {
+		if (_material.is_valid()) {
+			Ref<SpatialMaterial> sm = _material;
+
+			if (!sm.is_valid()) {
+				return;
+			}
+
+			sm->set_texture(SpatialMaterial::TEXTURE_ALBEDO, _texture);
+		}
+
+		return;
+	} else {
 		Ref<SpatialMaterial> sm = _material;
 
 		if (!sm.is_valid()) {
@@ -143,10 +156,24 @@ void MeshDataInstance::setup_material_texture() {
 	}
 }
 
+void MeshDataInstance::free_meshes() {
+	if (_mesh_instance != RID()) {
+		VS::get_singleton()->free(_mesh_instance);
+		_mesh_instance = RID();
+	}
+
+	if (_mesh_rid != RID()) {
+		VS::get_singleton()->free(_mesh_rid);
+		_mesh_rid = RID();
+	}
+}
+
 MeshDataInstance::MeshDataInstance() {
 	_dirty = false;
 	_snap_to_mesh = false;
 	_snap_axis = Vector3(0, -1, 0);
+
+	set_notify_transform(true);
 }
 MeshDataInstance::~MeshDataInstance() {
 	_mesh.unref();
@@ -156,11 +183,23 @@ MeshDataInstance::~MeshDataInstance() {
 void MeshDataInstance::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE: {
-			if (_dirty) {
-				_dirty = false;
+			setup_material_texture();
+			refresh();
 
-				refresh();
+			break;
+		}
+		case NOTIFICATION_EXIT_TREE: {
+			free_meshes();
+			break;
+		}
+		case NOTIFICATION_TRANSFORM_CHANGED: {
+			VisualServer *vs = VisualServer::get_singleton();
+
+			if (_mesh_instance != RID()) {
+				vs->instance_set_transform(_mesh_instance, get_transform());
 			}
+
+			break;
 		}
 	}
 }
