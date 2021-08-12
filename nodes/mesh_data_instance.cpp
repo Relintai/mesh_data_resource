@@ -196,7 +196,7 @@ void MeshDataInstance::_notification(int p_what) {
 			VisualServer *vs = VisualServer::get_singleton();
 
 			if (_mesh_instance != RID()) {
-				vs->instance_set_transform(_mesh_instance, get_transform());
+				vs->instance_set_transform(_mesh_instance, get_global_transform());
 			}
 
 			break;
