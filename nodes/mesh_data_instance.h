@@ -42,8 +42,8 @@ SOFTWARE.
 
 class PropInstance;
 
-class MeshDataInstance : public VisualInstance {
-	GDCLASS(MeshDataInstance, VisualInstance);
+class MeshDataInstance : public GeometryInstance {
+	GDCLASS(MeshDataInstance, GeometryInstance);
 
 public:
 	bool get_snap_to_mesh() const;
