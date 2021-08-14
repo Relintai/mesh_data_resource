@@ -27,7 +27,7 @@ SOFTWARE.
 #include "scene/resources/texture.h"
 
 #if VERSION_MAJOR < 4
-#include "scene/3d/spatial.h"
+#include "scene/3d/visual_instance.h"
 #else
 #include "scene/3d/node_3d.h"
 
@@ -42,8 +42,8 @@ SOFTWARE.
 
 class PropInstance;
 
-class MeshDataInstance : public Spatial {
-	GDCLASS(MeshDataInstance, Spatial);
+class MeshDataInstance : public VisualInstance {
+	GDCLASS(MeshDataInstance, VisualInstance);
 
 public:
 	bool get_snap_to_mesh() const;
@@ -60,6 +60,9 @@ public:
 
 	Ref<Material> get_material();
 	void set_material(const Ref<Material> &mat);
+
+	AABB get_aabb() const;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
 
 	void refresh();
 	void setup_material_texture();
@@ -81,7 +84,6 @@ private:
 	Ref<Material> _material;
 
 	RID _mesh_rid;
-	RID _mesh_instance;
 };
 
 #endif

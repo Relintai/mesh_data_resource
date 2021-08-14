@@ -65,6 +65,7 @@ public:
 public:
 	Array get_array();
 	void set_array(const Array &p_arrays);
+	Array get_array_const() const;
 
 	AABB get_aabb() const;
 	void set_aabb(const AABB &aabb);

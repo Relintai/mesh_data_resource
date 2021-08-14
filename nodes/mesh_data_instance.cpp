@@ -64,23 +64,57 @@ void MeshDataInstance::set_material(const Ref<Material> &mat) {
 	refresh();
 }
 
+AABB MeshDataInstance::get_aabb() const {
+	if (!_mesh.is_valid()) {
+		return AABB();
+	}
+
+	return _mesh->get_aabb();
+}
+
+PoolVector<Face3> MeshDataInstance::get_faces(uint32_t p_usage_flags) const {
+	PoolVector<Face3> faces;
+
+	if (_mesh.is_valid()) {
+		Array arrs = _mesh->get_array_const();
+
+		if (arrs.size() != Mesh::ARRAY_MAX) {
+			return faces;
+		}
+
+		PoolVector<Vector3> vertices = arrs[Mesh::ARRAY_VERTEX];
+		PoolVector<int> indices = arrs[Mesh::ARRAY_INDEX];
+
+		int ts = indices.size() / 3;
+		faces.resize(ts);
+
+		PoolVector<Face3>::Write w = faces.write();
+		PoolVector<Vector3>::Read rv = vertices.read();
+		PoolVector<int>::Read ri = indices.read();
+
+		for (int i = 0; i < ts; i++) {
+			int im3 = (i * 3);
+
+			for (int j = 0; j < 3; j++) {
+				w[i].vertex[j] = rv[indices[im3 + j]];
+			}
+		}
+
+		w.release();
+	}
+
+	return faces;
+}
+
 void MeshDataInstance::refresh() {
 	if (!is_inside_tree()) {
 		return;
 	}
 
 	if (_mesh_rid == RID()) {
-		_mesh_instance = VisualServer::get_singleton()->instance_create();
-
-		if (GET_WORLD().is_valid())
-			VS::get_singleton()->instance_set_scenario(_mesh_instance, GET_WORLD()->get_scenario());
-
 		_mesh_rid = VisualServer::get_singleton()->mesh_create();
 
-		VS::get_singleton()->instance_set_base(_mesh_instance, _mesh_rid);
-		VS::get_singleton()->instance_set_transform(_mesh_instance, get_transform());
-
-		VS::get_singleton()->instance_set_visible(_mesh_instance, true);
+		VS::get_singleton()->instance_set_base(get_instance(), _mesh_rid);
 	}
 
 	VisualServer::get_singleton()->mesh_clear(_mesh_rid);
@@ -159,11 +193,6 @@ void MeshDataInstance::setup_material_texture() {
 }
 
 void MeshDataInstance::free_meshes() {
-	if (_mesh_instance != RID()) {
-		VS::get_singleton()->free(_mesh_instance);
-		_mesh_instance = RID();
-	}
-
 	if (_mesh_rid != RID()) {
 		VS::get_singleton()->free(_mesh_rid);
 		_mesh_rid = RID();
@@ -175,7 +204,7 @@ MeshDataInstance::MeshDataInstance() {
 	_snap_to_mesh = false;
 	_snap_axis = Vector3(0, -1, 0);
 
-	set_notify_transform(true);
+	//set_notify_transform(true);
 }
 MeshDataInstance::~MeshDataInstance() {
 	_mesh.unref();
@@ -194,15 +223,14 @@ void MeshDataInstance::_notification(int p_what) {
 			free_meshes();
 			break;
 		}
+			/*
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			VisualServer *vs = VisualServer::get_singleton();
 
-			if (_mesh_instance != RID()) {
-				vs->instance_set_transform(_mesh_instance, get_global_transform());
-			}
+			vs->instance_set_transform(get_instance(), get_global_transform());
 
 			break;
-		}
+		}*/
 	}
 }
 
