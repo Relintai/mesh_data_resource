@@ -65,8 +65,6 @@ public:
 	void setup_material_texture();
 	void free_meshes();
 
-	Node *get_substitute_for_room();
-
 	MeshDataInstance();
 	~MeshDataInstance();
 

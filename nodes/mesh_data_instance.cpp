@@ -170,22 +170,6 @@ void MeshDataInstance::free_meshes() {
 	}
 }
 
-Node *MeshDataInstance::get_substitute_for_room() {
-	if (!_mesh.is_valid()) {
-		return nullptr;
-	}
-
-	Ref<ArrayMesh> m;
-	m.instance();
-
-	m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, _mesh->get_array());
-
-	MeshInstance *mi = memnew(MeshInstance);
-	mi->set_mesh(m);
-
-	return mi;
-}
-
 MeshDataInstance::MeshDataInstance() {
 	_dirty = false;
 	_snap_to_mesh = false;
@@ -244,6 +228,4 @@ void MeshDataInstance::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_material", "get_material");
 
 	ClassDB::bind_method(D_METHOD("refresh"), &MeshDataInstance::refresh);
-
-	ClassDB::bind_method(D_METHOD("get_substitute_for_room"), &MeshDataInstance::get_substitute_for_room);
 }
