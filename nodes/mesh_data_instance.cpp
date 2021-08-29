@@ -204,7 +204,9 @@ MeshDataInstance::MeshDataInstance() {
 	_snap_to_mesh = false;
 	_snap_axis = Vector3(0, -1, 0);
 
+#if VERSION_MINOR >= 4
 	set_portal_mode(PORTAL_MODE_GLOBAL);
+#endif
 
 	//set_notify_transform(true);
 }
