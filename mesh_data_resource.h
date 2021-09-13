@@ -24,6 +24,7 @@ SOFTWARE.
 #define MESH_DATA_REOURCE_H
 
 #include "core/version.h"
+#include "core/variant.h"
 
 #if VERSION_MAJOR > 3
 #include "core/io/resource.h"
@@ -78,7 +79,12 @@ public:
 	Vector<Variant> get_collision_shapes();
 	void set_collision_shapes(const Vector<Variant> &p_arrays);
 
+	PoolIntArray get_seams();
+	void set_seams(const PoolIntArray &array);
+
 	void recompute_aabb();
+
+	bool uv_unwrap();
 
 	MeshDataResource();
 	~MeshDataResource();
@@ -96,6 +102,7 @@ private:
 	Array _arrays;
 	AABB _aabb;
 	Vector<MDRData> _collision_shapes;
+	PoolIntArray _seams;
 };
 
 VARIANT_ENUM_CAST(MeshDataResource::ColliderType);
