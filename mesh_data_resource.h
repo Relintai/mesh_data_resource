@@ -84,7 +84,7 @@ public:
 
 	void recompute_aabb();
 
-	bool uv_unwrap();
+	bool uv_unwrap(float p_texel_size = 0.1);
 
 	MeshDataResource();
 	~MeshDataResource();
