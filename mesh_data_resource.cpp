@@ -26,8 +26,8 @@ SOFTWARE.
 #include "core/version.h"
 
 #ifdef XATLAS_PRESENT
-#include "scene/resources/surface_tool.h"
 #include "core/local_vector.h"
+#include "scene/resources/surface_tool.h"
 #include "thirdparty/xatlas/xatlas.h"
 #endif
 
@@ -150,6 +150,7 @@ struct MeshDataResourceUnwrapSurface {
 };
 
 bool MeshDataResource::uv_unwrap(float p_texel_size) {
+#ifdef XATLAS_PRESENT
 	if (_arrays.size() != ArrayMesh::ARRAY_MAX) {
 		return false;
 	}
@@ -257,7 +258,7 @@ bool MeshDataResource::uv_unwrap(float p_texel_size) {
 
 	int r_index_count = output.indexCount;
 
-/*
+	/*
 
 	print_verbose("Mesh: Gen indices: " + itos(gen_index_count));
 	//go through all indices
@@ -309,7 +310,6 @@ bool MeshDataResource::uv_unwrap(float p_texel_size) {
 	}
 */
 
-
 	xatlas::Destroy(atlas);
 
 	::free(r_vertex);
@@ -318,7 +318,6 @@ bool MeshDataResource::uv_unwrap(float p_texel_size) {
 
 	return true;
 
-#ifdef XATLAS_PRESENT
 #else
 	return false;
 #endif
