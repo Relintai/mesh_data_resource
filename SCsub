@@ -13,9 +13,6 @@ if os.path.isdir('../props'):
 if os.path.isdir('../mesh_utils'):
     module_env.Append(CPPDEFINES=['MESH_UTILS_PRESENT'])
 
-if env["module_xatlas_unwrap_enabled"]:
-    module_env.Append(CPPDEFINES=['XATLAS_PRESENT'])
-
 module_env.add_source_files(env.modules_sources,"register_types.cpp")
 
 module_env.add_source_files(env.modules_sources,"mesh_data_resource.cpp")
