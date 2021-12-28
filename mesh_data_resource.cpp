@@ -148,11 +148,6 @@ void MeshDataResource::recompute_aabb() {
 	_aabb = aabb;
 }
 
-bool MeshDataResource::uv_unwrap(float p_texel_size) {
-	//NYI
-	return false;
-}
-
 MeshDataResource::MeshDataResource() {
 }
 
@@ -183,5 +178,4 @@ void MeshDataResource::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_collision_shape_count"), &MeshDataResource::get_collision_shape_count);
 
 	ClassDB::bind_method(D_METHOD("recompute_aabb"), &MeshDataResource::recompute_aabb);
-	ClassDB::bind_method(D_METHOD("uv_unwrap", "texel_size"), &MeshDataResource::uv_unwrap, 0.1);
 }
