@@ -38,6 +38,8 @@ void MeshDataResource::set_array(const Array &p_arrays) {
 	_arrays = p_arrays;
 
 	recompute_aabb();
+
+	emit_changed();
 }
 Array MeshDataResource::get_array_const() const {
 	return _arrays;
@@ -48,6 +50,8 @@ AABB MeshDataResource::get_aabb() const {
 }
 void MeshDataResource::set_aabb(const AABB &aabb) {
 	_aabb = aabb;
+
+	emit_changed();
 }
 
 void MeshDataResource::add_collision_shape(const Transform &transform, const Ref<Shape> &shape) {
@@ -57,6 +61,8 @@ void MeshDataResource::add_collision_shape(const Transform &transform, const Ref
 	d.shape = shape;
 
 	_collision_shapes.push_back(d);
+
+	emit_changed();
 }
 Ref<Shape> MeshDataResource::get_collision_shape(const int index) {
 	ERR_FAIL_INDEX_V(index, _collision_shapes.size(), Ref<Shape>());
@@ -97,6 +103,8 @@ void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
 
 		_collision_shapes.push_back(d);
 	}
+	
+	emit_changed();
 }
 
 PoolIntArray MeshDataResource::get_seams() {
@@ -105,6 +113,8 @@ PoolIntArray MeshDataResource::get_seams() {
 
 void MeshDataResource::set_seams(const PoolIntArray &array) {
 	_seams = array;
+
+	emit_changed();
 }
 
 void MeshDataResource::recompute_aabb() {
