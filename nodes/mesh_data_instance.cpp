@@ -39,9 +39,17 @@ Ref<MeshDataResource> MeshDataInstance::get_mesh_data() {
 	return _mesh;
 }
 void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
+	if (_mesh.is_valid()) {
+		_mesh->disconnect("changed", this, "refresh");
+	}
+
 	_mesh = mesh;
 
 	refresh();
+
+	if (_mesh.is_valid()) {
+		_mesh->connect("changed", this, "refresh");
+	}
 }
 
 Ref<Texture> MeshDataInstance::get_texture() {
