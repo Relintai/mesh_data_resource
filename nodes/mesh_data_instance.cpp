@@ -50,6 +50,8 @@ void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
 	if (_mesh.is_valid()) {
 		_mesh->connect("changed", this, "refresh");
 	}
+
+	emit_signal("mesh_data_resource_changed", _mesh);
 }
 
 Ref<Texture> MeshDataInstance::get_texture() {
@@ -268,4 +270,6 @@ void MeshDataInstance::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_material", "get_material");
 
 	ClassDB::bind_method(D_METHOD("refresh"), &MeshDataInstance::refresh);
+
+	ADD_SIGNAL(MethodInfo("mesh_data_resource_changed", PropertyInfo(Variant::OBJECT, "mdr", PROPERTY_HINT_RESOURCE_TYPE, "MeshDataResource")));
 }
