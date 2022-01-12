@@ -15,6 +15,7 @@ def get_doc_classes():
 
         "MeshDataInstanceProcessor",
         "PropDataMeshData",
+        "MeshDataResourceCollection"
     ]
 
 def get_doc_path():
