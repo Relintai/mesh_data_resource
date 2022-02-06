@@ -24,14 +24,23 @@ SOFTWARE.
 #define MESH_DATA_REOURCE_H
 
 #include "core/version.h"
-#include "core/variant.h"
+
 
 #if VERSION_MAJOR > 3
 #include "core/io/resource.h"
 #include "core/variant/array.h"
+#include "core/variant/variant.h"
+
+#include "core/math/transform_3d.h"
+typedef class Transform3D Transform;
+
+#define PoolIntArray PackedInt64Array
+
 #else
 #include "core/resource.h"
 #include "core/array.h"
+#include "core/variant.h"
+#include "core/pool_vector.h"
 #endif
 
 #include "core/version.h"

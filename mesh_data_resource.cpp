@@ -22,11 +22,16 @@ SOFTWARE.
 
 #include "mesh_data_resource.h"
 
-#include "core/variant.h"
+
 #include "core/version.h"
 
 #if VERSION_MAJOR >= 4
+#include "core/variant/variant.h"
+
 #define PoolVector Vector
+#define POOL_INT_ARRAY PACKED_INT_ARRAY
+#else
+#include "core/variant.h"
 #endif
 
 const String MeshDataResource::BINDING_STRING_COLLIDER_TYPE = "None,Trimesh Collision Shape,Single Convex Collision Shape,Multiple Convex Collision Shapes,Approximated Box,Approximated Capsule,Approximated Cylinder,Approximated Sphere";
