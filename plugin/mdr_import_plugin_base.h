@@ -103,6 +103,9 @@ public:
 	Array apply_transforms(Array &array, const Map<StringName, Variant> &p_options);
 	Ref<Shape> scale_shape(Ref<Shape> shape, const Vector3 &scale);
 
+	void save_mdr_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res);
+	void save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res);
+
 	MDRImportPluginBase();
 	~MDRImportPluginBase();
 };

@@ -95,6 +95,8 @@ void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int 
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "offset"), Vector3(0, 0, 0)));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "rotation"), Vector3(0, 0, 0)));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "scale"), Vector3(1, 1, 1)));
+
+	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "save_copy_as_resource"), false));
 }
 
 bool MDRImportPluginBase::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
@@ -108,17 +110,26 @@ Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, co
 		case MDR_IMPORT_TIME_SINGLE: {
 			return process_node_single(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
 		}
-		//case MDR_IMPORT_TIME_SINGLE_MERGED: {
-		//	ERR_FAIL_V_MSG(Error::ERR_UNAVAILABLE, "import type Single Merged is not yet implemented! " + p_source_file);
-		//}
+
+			//case MDR_IMPORT_TIME_SINGLE_MERGED: {
+			//	ERR_FAIL_V_MSG(Error::ERR_UNAVAILABLE, "import type Single Merged is not yet implemented! " + p_source_file);
+			//}
+
 		case MDR_IMPORT_TIME_MULTIPLE: {
+			bool save_copy_as_resource = static_cast<bool>(p_options["save_copy_as_resource"]);
+
 			Ref<MeshDataResourceCollection> coll;
 			coll.instance();
 
 			process_node_multi(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll);
 
+			if (save_copy_as_resource) {
+				save_mdrcoll_copy_as_tres(p_source_file, coll);
+			}
+
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
 		}
+
 			//case MDR_IMPORT_TIME_SINGLE_WITH_SEPARATED_BONES: {
 			//	return process_node_single_separated_bones(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
 			//}
@@ -148,6 +159,7 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
 #endif
 
+	bool save_copy_as_resource = static_cast<bool>(p_options["save_copy_as_resource"]);
 	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Vector3 scale = p_options["scale"];
@@ -177,6 +189,10 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 
 			ERR_FAIL_COND_V(!mdr.is_valid(), Error::ERR_PARSE_ERROR);
 
+			if (save_copy_as_resource) {
+				save_mdr_copy_as_tres(p_source_file, mdr);
+			}
+
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), mdr);
 		}
 
@@ -194,6 +210,7 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 #endif
 
 	MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
+	bool save_copy_as_resource = static_cast<bool>(p_options["save_copy_as_resource"]);
 
 	Vector3 scale = p_options["scale"];
 
@@ -247,6 +264,10 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 				Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
 
 				coll->add_mdr(mdrl);
+			}
+
+			if (save_copy_as_resource) {
+				save_mdrcoll_copy_as_tres(p_source_file, coll);
 			}
 
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
@@ -876,6 +897,23 @@ Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &sca
 	}
 
 	return shape;
+}
+
+void MDRImportPluginBase::save_mdr_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res) {
+	String sp = p_source_file;
+	String ext = p_source_file.get_extension();
+	sp.resize(sp.size() - ext.size());
+	sp += ".tres";
+
+	ResourceSaver::save(sp, res);
+}
+void MDRImportPluginBase::save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res) {
+	String sp = p_source_file;
+	String ext = p_source_file.get_extension();
+	sp.resize(sp.size() - ext.size());
+	sp += ".tres";
+
+	ResourceSaver::save(sp, res);
 }
 
 MDRImportPluginBase::MDRImportPluginBase() {
