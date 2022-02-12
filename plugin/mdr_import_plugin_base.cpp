@@ -74,6 +74,7 @@ using PoolVector = Vector<N>;
 #endif
 
 const String MDRImportPluginBase::BINDING_MDR_IMPORT_TYPE = "Single,Multiple";
+const String MDRImportPluginBase::BINDING_MDR_SURFACE_HANDLING_TYPE = "Only Use First,Create Separate MDRs,Merge";
 const String MDRImportPluginBase::BINDING_MDR_OPTIMIZATION_TYPE = "Off"
 #if MESH_UTILS_PRESENT
 																  ",Remove Doubles,Remove Doubles Interpolate Normals"
@@ -82,6 +83,7 @@ const String MDRImportPluginBase::BINDING_MDR_OPTIMIZATION_TYPE = "Off"
 
 void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "import_type", PROPERTY_HINT_ENUM, BINDING_MDR_IMPORT_TYPE), MDRImportPluginBase::MDR_IMPORT_TIME_SINGLE));
+	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "surface_handling", PROPERTY_HINT_ENUM, BINDING_MDR_SURFACE_HANDLING_TYPE), MDRImportPluginBase::MDR_SURFACE_HANDLING_TYPE_ONLY_USE_FIRST));
 
 #if MESH_UTILS_PRESENT
 	//Normal remove doubles should be the default if mesh utils present as it shouldn't visibly change the mesh
@@ -176,30 +178,40 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 		Node *c = n->get_child(i);
 
 		if (Object::cast_to<MeshInstance>(c)) {
-			MeshInstance *mi = Object::cast_to<MeshInstance>(c);
+			MeshInstance *mesh_inst = Object::cast_to<MeshInstance>(c);
 
-			Ref<MeshDataResource> mdr = get_mesh(mi, p_options, collider_type, scale);
+			Vector<Ref<MeshDataResource>> mdrs = get_meshes(mesh_inst, p_options, collider_type, scale);
+
+			for (int mi = 0; mi < mdrs.size(); ++mi) {
+				Ref<MeshDataResource> mdr = mdrs[mi];
+
+				if (!mdr.is_valid()) {
+					continue;
+				}
 
 #if MESH_UTILS_PRESENT
-			switch (optimization_type) {
-				case MDR_OPTIMIZATION_OFF:
-					break;
-				case MDR_OPTIMIZATION_REMOVE_DOUBLES:
-					mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
-					break;
-				case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
-					mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
-					break;
-			}
+				switch (optimization_type) {
+					case MDR_OPTIMIZATION_OFF:
+						break;
+					case MDR_OPTIMIZATION_REMOVE_DOUBLES:
+						mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
+						break;
+					case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
+						mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
+						break;
+				}
 #endif
 
-			ERR_FAIL_COND_V(!mdr.is_valid(), Error::ERR_PARSE_ERROR);
+				ERR_FAIL_COND_V(!mdr.is_valid(), Error::ERR_PARSE_ERROR);
 
-			if (save_copy_as_resource) {
-				save_mdr_copy_as_tres(p_source_file, mdr);
+				if (save_copy_as_resource) {
+					save_mdr_copy_as_tres(p_source_file, mdr, mdrs.size() > 1, mi);
+				}
+
+				ResourceSaver::save(p_save_path + "." + get_save_extension(), mdr);
 			}
 
-			return ResourceSaver::save(p_save_path + "." + get_save_extension(), mdr);
+			return Error::OK;
 		}
 
 		if (process_node_single(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata) == Error::OK) {
@@ -229,9 +241,9 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 			Ref<MeshDataResourceCollection> coll;
 			coll.instance();
 
-			MeshInstance *mi = Object::cast_to<MeshInstance>(c);
+			MeshInstance *mesh_inst = Object::cast_to<MeshInstance>(c);
 
-			Ref<ArrayMesh> mesh = mi->get_mesh();
+			Ref<ArrayMesh> mesh = mesh_inst->get_mesh();
 
 			if (!mesh.is_valid())
 				continue;
@@ -310,49 +322,72 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 		Node *c = n->get_child(i);
 
 		if (Object::cast_to<MeshInstance>(c)) {
-			MeshInstance *mi = Object::cast_to<MeshInstance>(c);
+			MeshInstance *mesh_inst = Object::cast_to<MeshInstance>(c);
 
-			Ref<MeshDataResource> mdr = get_mesh(mi, p_options, collider_type, scale);
+			Vector<Ref<MeshDataResource>> mdrs = get_meshes(mesh_inst, p_options, collider_type, scale);
+
+			for (int mi = 0; mi < mdrs.size(); ++mi) {
+				Ref<MeshDataResource> mdr = mdrs[mi];
+
+				if (!mdr.is_valid()) {
+					continue;
+				}
 
 #if MESH_UTILS_PRESENT
-			switch (optimization_type) {
-				case MDR_OPTIMIZATION_OFF:
-					break;
-				case MDR_OPTIMIZATION_REMOVE_DOUBLES:
-					mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
-					break;
-				case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
-					mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
-					break;
-			}
+				switch (optimization_type) {
+					case MDR_OPTIMIZATION_OFF:
+						break;
+					case MDR_OPTIMIZATION_REMOVE_DOUBLES:
+						mdr->set_array(MeshUtils::get_singleton()->remove_doubles(mdr->get_array()));
+						break;
+					case MDR_OPTIMIZATION_REMOVE_DOUBLES_INTERPOLATE_NORMALS:
+						mdr->set_array(MeshUtils::get_singleton()->remove_doubles_interpolate_normals(mdr->get_array()));
+						break;
+				}
 #endif
 
-			if (copy_coll.is_valid()) {
+				if (copy_coll.is_valid()) {
+					String node_name = c->get_name();
+					node_name = node_name.to_lower();
+					String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(node_count);
+
+					if (mdrs.size() > 1) {
+						filename += "_";
+						filename += String::num(mi);
+					}
+
+					filename += ".tres";
+
+					Error err = ResourceSaver::save(filename, mdr);
+					Ref<MeshDataResource> mdrtl = ResourceLoader::load(filename);
+					copy_coll->add_mdr(mdrtl);
+
+					if (err != Error::OK) {
+						return err;
+					}
+				}
+
 				String node_name = c->get_name();
 				node_name = node_name.to_lower();
-				String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(node_count) + ".tres";
+				String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(node_count);
+
+				if (mdrs.size() > 1) {
+					filename += "_";
+					filename += String::num(mi);
+				}
+
+				filename += "." + get_save_extension();
 
 				Error err = ResourceSaver::save(filename, mdr);
-				Ref<MeshDataResource> mdrtl = ResourceLoader::load(filename);
-				copy_coll->add_mdr(mdrtl);
+				Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
+				coll->add_mdr(mdrl);
 
 				if (err != Error::OK) {
 					return err;
 				}
 			}
 
-			String node_name = c->get_name();
-			node_name = node_name.to_lower();
-			String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(node_count) + +"." + get_save_extension();
 			++node_count;
-
-			Error err = ResourceSaver::save(filename, mdr);
-			Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
-			coll->add_mdr(mdrl);
-
-			if (err != Error::OK) {
-				return err;
-			}
 		}
 
 		process_node_multi(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll, copy_coll, node_count);
@@ -361,142 +396,54 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 	return Error::OK;
 }
 
-Ref<MeshDataResource> MDRImportPluginBase::get_mesh(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
+Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
+	MDRImportPluginBase::MDRSurfaceHandlingType surface_handling = static_cast<MDRImportPluginBase::MDRSurfaceHandlingType>(static_cast<int>(p_options["surface_handling"]));
+
+	Vector<Ref<MeshDataResource>> ret;
+
 	Ref<ArrayMesh> mesh = mi->get_mesh();
 
 	if (mesh.is_valid()) {
-		Ref<MeshDataResource> mdr;
-		mdr.instance();
+		if (surface_handling == MDR_SURFACE_HANDLING_TYPE_ONLY_USE_FIRST) {
+			Ref<MeshDataResource> mdr;
+			mdr.instance();
 
-		Array arrays = mesh->surface_get_arrays(0);
+			Array arrays = mesh->surface_get_arrays(0);
 
-		mdr->set_array(apply_transforms(arrays, p_options));
+			mdr->set_array(apply_transforms(arrays, p_options));
 
-		if (collider_type == MeshDataResource::COLLIDER_TYPE_TRIMESH_COLLISION_SHAPE) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+			add_colliders(mdr, mesh, p_options, collider_type, scale);
 
-			Ref<Shape> shape = m->create_trimesh_shape();
+			ret.push_back(mdr);
+		} else if (surface_handling == MDR_SURFACE_HANDLING_TYPE_MERGE) {
+			Ref<MeshDataResource> mdr;
+			mdr.instance();
 
-			if (!shape.is_null()) {
-				mdr->add_collision_shape(Transform(), scale_shape(shape, scale));
-			}
-		} else if (collider_type == MeshDataResource::COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
+			for (int i = 0; i < mesh->get_surface_count(); ++i) {
+				Array arrays = mesh->surface_get_arrays(i);
 
-			Ref<Shape> shape = mesh->create_convex_shape();
-
-			if (!shape.is_null()) {
-				mdr->add_collision_shape(Transform(), scale_shape(shape, scale));
-			}
-		} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
-
-			Vector<Ref<Shape>> shapes = mesh->convex_decompose();
-
-			for (int j = 0; j < shapes.size(); ++j) {
-				scale_shape(shapes[j], scale);
+				mdr->append_arrays(apply_transforms(arrays, p_options));
 			}
 
-			for (int j = 0; j < shapes.size(); ++j) {
-				mdr->add_collision_shape(Transform(), shapes[j]);
+			add_colliders(mdr, mesh, p_options, collider_type, scale);
+			ret.push_back(mdr);
+		} else if (surface_handling == MDR_SURFACE_HANDLING_TYPE_SEPARATE_MDRS) {
+			for (int i = 0; i < mesh->get_surface_count(); ++i) {
+				Ref<MeshDataResource> mdr;
+				mdr.instance();
+
+				Array arrays = mesh->surface_get_arrays(i);
+
+				mdr->set_array(apply_transforms(arrays, p_options));
+
+				add_colliders(mdr, mesh, p_options, collider_type, scale);
+
+				ret.push_back(mdr);
 			}
-		} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_BOX) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
-
-			Ref<BoxShape> shape;
-			shape.instance();
-
-			AABB aabb = m->get_aabb();
-			Vector3 size = aabb.get_size();
-
-#if VERSION_MAJOR > 3
-			shape->set_size(size * 0.5);
-#else
-			shape->set_extents(size * 0.5);
-#endif
-
-			Vector3 pos = aabb.position;
-			pos += size / 2.0;
-
-			Transform t;
-			t.origin = pos;
-
-			mdr->add_collision_shape(t, shape);
-		} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CAPSULE) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
-
-			Ref<CapsuleShape> shape;
-			shape.instance();
-
-			AABB aabb = m->get_aabb();
-			Vector3 size = aabb.get_size();
-
-			shape->set_height(size.y * 0.5);
-			shape->set_radius(MIN(size.x, size.z) * 0.5);
-
-			Vector3 pos = aabb.position;
-			pos += size / 2.0;
-
-			Transform t = Transform(Basis().rotated(Vector3(1, 0, 0), M_PI_2));
-			t.origin = pos;
-
-			mdr->add_collision_shape(t, shape);
-		} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CYLINDER) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
-
-			Ref<CylinderShape> shape;
-			shape.instance();
-
-			AABB aabb = m->get_aabb();
-			Vector3 size = aabb.get_size();
-
-			shape->set_height(size.y * 0.5);
-			shape->set_radius(MIN(size.x, size.z) * 0.5);
-
-			Vector3 pos = aabb.position;
-			pos += size / 2.0;
-
-			Transform t;
-			t.origin = pos;
-
-			mdr->add_collision_shape(t, shape);
-		} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_SPHERE) {
-			Ref<ArrayMesh> m;
-			m.instance();
-			m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
-
-			Ref<SphereShape> shape;
-			shape.instance();
-
-			AABB aabb = m->get_aabb();
-			Vector3 size = aabb.get_size();
-
-			shape->set_radius(MIN(size.x, MIN(size.y, size.z)) * 0.5);
-
-			Vector3 mid = aabb.get_size() / 2.0;
-
-			Transform t;
-			t.origin = aabb.position + mid;
-
-			mdr->add_collision_shape(t, shape);
 		}
-
-		return mdr;
 	}
 
-	return Ref<MeshDataResource>();
+	return ret;
 }
 
 Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
@@ -514,7 +461,12 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 	Array arrays = mesh->surface_get_arrays(0);
 
 	mdr->set_array(apply_transforms(arrays, p_options));
+	add_colliders(mdr, mesh, p_options, collider_type, scale);
 
+	return mdr;
+}
+
+void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh> mesh, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
 	if (collider_type == MeshDataResource::COLLIDER_TYPE_TRIMESH_COLLISION_SHAPE) {
 		Ref<ArrayMesh> m;
 		m.instance();
@@ -535,6 +487,7 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 		if (!shape.is_null()) {
 			mdr->add_collision_shape(Transform(), scale_shape(shape, scale));
 		}
+
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
 		Ref<ArrayMesh> m;
 		m.instance();
@@ -635,8 +588,6 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 
 		mdr->add_collision_shape(t, shape);
 	}
-
-	return mdr;
 }
 
 Vector<Array> MDRImportPluginBase::split_mesh_bones(Ref<ArrayMesh> mesh) {
@@ -926,10 +877,16 @@ Ref<Shape> MDRImportPluginBase::scale_shape(Ref<Shape> shape, const Vector3 &sca
 	return shape;
 }
 
-void MDRImportPluginBase::save_mdr_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res) {
+void MDRImportPluginBase::save_mdr_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res, bool indexed, int index) {
 	String sp = p_source_file;
 	String ext = p_source_file.get_extension();
 	sp.resize(sp.size() - ext.size());
+
+	if (indexed) {
+		sp += "_";
+		sp += String::num(index);
+	}
+
 	sp += ".tres";
 
 	ResourceSaver::save(sp, res);
