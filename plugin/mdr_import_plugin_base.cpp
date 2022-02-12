@@ -121,10 +121,16 @@ Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, co
 			Ref<MeshDataResourceCollection> coll;
 			coll.instance();
 
-			process_node_multi(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll);
+			Ref<MeshDataResourceCollection> copy_coll;
 
 			if (save_copy_as_resource) {
-				save_mdrcoll_copy_as_tres(p_source_file, coll);
+				copy_coll.instance();
+			}
+
+			process_node_multi(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll, copy_coll);
+
+			if (save_copy_as_resource) {
+				save_mdrcoll_copy_as_tres(p_source_file, copy_coll);
 			}
 
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
@@ -263,11 +269,19 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 
 				Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
 
+				if (save_copy_as_resource) {
+					save_mdr_copy_as_tres(filename, mdrl);
+				}
+
 				coll->add_mdr(mdrl);
 			}
 
 			if (save_copy_as_resource) {
-				save_mdrcoll_copy_as_tres(p_source_file, coll);
+				//	String node_name = c->get_name();
+				//	node_name = node_name.to_lower();
+
+				//	String mdr_coll_name = p_source_file.get_basename() + "_mdrcoll_" + node_name + "_" + String::num(j) + "." + get_save_extension();
+				//	save_mdrcoll_copy_as_tres(mdr_coll_name, coll);
 			}
 
 			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
@@ -281,7 +295,7 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 	return Error::ERR_PARSE_ERROR;
 }
 
-Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll) {
+Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll, Ref<MeshDataResourceCollection> copy_coll, int node_count) {
 #if MESH_UTILS_PRESENT
 	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
 #endif
@@ -313,14 +327,27 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 			}
 #endif
 
+			if (copy_coll.is_valid()) {
+				String node_name = c->get_name();
+				node_name = node_name.to_lower();
+				String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(node_count) + ".tres";
+
+				Error err = ResourceSaver::save(filename, mdr);
+				Ref<MeshDataResource> mdrtl = ResourceLoader::load(filename);
+				copy_coll->add_mdr(mdrtl);
+
+				if (err != Error::OK) {
+					return err;
+				}
+			}
+
 			String node_name = c->get_name();
 			node_name = node_name.to_lower();
-			String filename = p_source_file.get_basename() + "_" + node_name + "." + get_save_extension();
+			String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(node_count) + +"." + get_save_extension();
+			++node_count;
 
 			Error err = ResourceSaver::save(filename, mdr);
-
 			Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
-
 			coll->add_mdr(mdrl);
 
 			if (err != Error::OK) {
@@ -328,7 +355,7 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 			}
 		}
 
-		process_node_multi(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll);
+		process_node_multi(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll, copy_coll, node_count);
 	}
 
 	return Error::OK;
@@ -907,7 +934,7 @@ void MDRImportPluginBase::save_mdr_copy_as_tres(const String &p_source_file, con
 
 	ResourceSaver::save(sp, res);
 }
-void MDRImportPluginBase::save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res) {
+void MDRImportPluginBase::save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResourceCollection> &res) {
 	String sp = p_source_file;
 	String ext = p_source_file.get_extension();
 	sp.resize(sp.size() - ext.size());

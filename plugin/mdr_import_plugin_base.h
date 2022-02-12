@@ -94,7 +94,7 @@ public:
 	int get_mesh_count(Node *n);
 	Error process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata);
 	Error process_node_single_separated_bones(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata);
-	Error process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll);
+	Error process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll, Ref<MeshDataResourceCollection> copy_coll, int node_count = 0);
 	Ref<MeshDataResource> get_mesh(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale);
 	Ref<MeshDataResource> get_mesh_arrays(Array &arrs, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale);
 
@@ -104,7 +104,7 @@ public:
 	Ref<Shape> scale_shape(Ref<Shape> shape, const Vector3 &scale);
 
 	void save_mdr_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res);
-	void save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResource> &res);
+	void save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResourceCollection> &res);
 
 	MDRImportPluginBase();
 	~MDRImportPluginBase();
