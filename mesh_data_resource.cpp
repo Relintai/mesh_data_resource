@@ -22,7 +22,6 @@ SOFTWARE.
 
 #include "mesh_data_resource.h"
 
-
 #include "core/version.h"
 
 #if VERSION_MAJOR >= 4
@@ -108,7 +107,7 @@ void MeshDataResource::set_collision_shapes(const Vector<Variant> &p_arrays) {
 
 		_collision_shapes.push_back(d);
 	}
-	
+
 	emit_changed();
 }
 
@@ -118,6 +117,169 @@ PoolIntArray MeshDataResource::get_seams() {
 
 void MeshDataResource::set_seams(const PoolIntArray &array) {
 	_seams = array;
+
+	emit_changed();
+}
+
+void MeshDataResource::append_arrays(const Array &p_arrays) {
+	if (p_arrays.size() != Mesh::ARRAY_MAX) {
+		return;
+	}
+
+	if (_arrays.size() != Mesh::ARRAY_MAX) {
+		_arrays = p_arrays;
+		return;
+	}
+
+	PoolVector3Array vertices = _arrays[Mesh::ARRAY_VERTEX];
+
+	if (vertices.size() == 0) {
+		_arrays = p_arrays;
+		return;
+	}
+
+	PoolVector3Array normals = _arrays[Mesh::ARRAY_NORMAL];
+	PoolRealArray tangents = _arrays[Mesh::ARRAY_TANGENT];
+	PoolColorArray colors = _arrays[Mesh::ARRAY_COLOR];
+	PoolVector2Array uv = _arrays[Mesh::ARRAY_TEX_UV];
+	PoolVector2Array uv2 = _arrays[Mesh::ARRAY_TEX_UV2];
+	PoolRealArray bones = _arrays[Mesh::ARRAY_BONES];
+	PoolRealArray weights = _arrays[Mesh::ARRAY_WEIGHTS];
+	PoolIntArray indices = _arrays[Mesh::ARRAY_INDEX];
+
+	PoolVector3Array merge_vertices = p_arrays[Mesh::ARRAY_VERTEX];
+	PoolVector3Array merge_normals = p_arrays[Mesh::ARRAY_NORMAL];
+	PoolRealArray merge_tangents = p_arrays[Mesh::ARRAY_TANGENT];
+	PoolColorArray merge_colors = p_arrays[Mesh::ARRAY_COLOR];
+	PoolVector2Array merge_uv = p_arrays[Mesh::ARRAY_TEX_UV];
+	PoolVector2Array merge_uv2 = p_arrays[Mesh::ARRAY_TEX_UV2];
+	PoolRealArray merge_bones = p_arrays[Mesh::ARRAY_BONES];
+	PoolRealArray merge_weights = p_arrays[Mesh::ARRAY_WEIGHTS];
+	PoolIntArray merge_indices = p_arrays[Mesh::ARRAY_INDEX];
+
+	//merge
+
+	int ovc = vertices.size();
+	vertices.append_array(merge_vertices);
+
+	if (_arrays[Mesh::ARRAY_NORMAL] != Variant()) {
+		if (merge_vertices.size() != merge_normals.size()) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				normals.append(Vector3());
+			}
+		} else {
+			normals.append_array(merge_normals);
+		}
+	}
+
+	if (_arrays[Mesh::ARRAY_TANGENT] != Variant()) {
+		if (merge_vertices.size() != merge_tangents.size() * 4) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				merge_tangents.append(0);
+				merge_tangents.append(0);
+				merge_tangents.append(0);
+				merge_tangents.append(0);
+			}
+		} else {
+			tangents.append_array(merge_tangents);
+		}
+	}
+
+	if (_arrays[Mesh::ARRAY_COLOR] != Variant()) {
+		if (merge_vertices.size() != merge_colors.size()) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				colors.append(Color());
+			}
+		} else {
+			colors.append_array(merge_colors);
+		}
+	}
+
+	if (_arrays[Mesh::ARRAY_TEX_UV] != Variant()) {
+		if (merge_vertices.size() != merge_uv.size()) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				uv.append(Vector2());
+			}
+		} else {
+			uv.append_array(merge_uv);
+		}
+	}
+
+	if (_arrays[Mesh::ARRAY_TEX_UV2] != Variant()) {
+		if (merge_vertices.size() != merge_uv2.size()) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				uv2.append(Vector2());
+			}
+		} else {
+			uv2.append_array(merge_uv2);
+		}
+	}
+
+	if (_arrays[Mesh::ARRAY_BONES] != Variant()) {
+		if (merge_vertices.size() != merge_bones.size() * 4) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				bones.append(0);
+				bones.append(0);
+				bones.append(0);
+				bones.append(0);
+			}
+		} else {
+			bones.append_array(merge_bones);
+		}
+	}
+
+	if (_arrays[Mesh::ARRAY_WEIGHTS] != Variant()) {
+		if (merge_vertices.size() != merge_weights.size() * 4) {
+			for (int i = 0; i < merge_vertices.size(); ++i) {
+				weights.append(0);
+				weights.append(0);
+				weights.append(0);
+				weights.append(0);
+			}
+		} else {
+			weights.append_array(merge_weights);
+		}
+	}
+
+	for (int i = 0; i < merge_indices.size(); ++i) {
+		merge_indices.set(i, merge_indices[i] + ovc);
+	}
+
+	indices.append_array(merge_indices);
+
+	//write back
+
+	_arrays[Mesh::ARRAY_VERTEX] = vertices;
+
+	if (_arrays[Mesh::ARRAY_NORMAL] != Variant()) {
+		_arrays[Mesh::ARRAY_NORMAL] = normals;
+	}
+
+	if (_arrays[Mesh::ARRAY_TANGENT] != Variant()) {
+		_arrays[Mesh::ARRAY_TANGENT] = tangents;
+	}
+
+	if (_arrays[Mesh::ARRAY_COLOR] != Variant()) {
+		_arrays[Mesh::ARRAY_COLOR] = colors;
+	}
+
+	if (_arrays[Mesh::ARRAY_TEX_UV] != Variant()) {
+		_arrays[Mesh::ARRAY_TEX_UV] = uv;
+	}
+
+	if (_arrays[Mesh::ARRAY_TEX_UV2] != Variant()) {
+		_arrays[Mesh::ARRAY_TEX_UV2] = uv2;
+	}
+
+	if (_arrays[Mesh::ARRAY_BONES] != Variant()) {
+		_arrays[Mesh::ARRAY_BONES] = bones;
+	}
+
+	if (_arrays[Mesh::ARRAY_WEIGHTS] != Variant()) {
+		_arrays[Mesh::ARRAY_WEIGHTS] = weights;
+	}
+
+	_arrays[Mesh::ARRAY_INDEX] = indices;
 
 	emit_changed();
 }
@@ -181,6 +343,8 @@ void MeshDataResource::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_collision_shape", "shape"), &MeshDataResource::add_collision_shape);
 	ClassDB::bind_method(D_METHOD("get_collision_shape", "index"), &MeshDataResource::get_collision_shape);
 	ClassDB::bind_method(D_METHOD("get_collision_shape_count"), &MeshDataResource::get_collision_shape_count);
+
+	ClassDB::bind_method(D_METHOD("append_arrays", "array"), &MeshDataResource::append_arrays);
 
 	ClassDB::bind_method(D_METHOD("recompute_aabb"), &MeshDataResource::recompute_aabb);
 }

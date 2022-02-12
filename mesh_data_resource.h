@@ -91,6 +91,8 @@ public:
 	PoolIntArray get_seams();
 	void set_seams(const PoolIntArray &array);
 
+	void append_arrays(const Array &p_arrays);
+
 	void recompute_aabb();
 
 	MeshDataResource();
