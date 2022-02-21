@@ -10,6 +10,9 @@ if os.path.isdir('../texture_packer'):
 if os.path.isdir('../props'):
     module_env.Append(CPPDEFINES=['PROPS_PRESENT'])
 
+if os.path.isdir('../props_2d'):
+    module_env.Append(CPPDEFINES=['PROPS_2D_PRESENT'])
+
 if os.path.isdir('../mesh_utils'):
     module_env.Append(CPPDEFINES=['MESH_UTILS_PRESENT'])
 
@@ -31,3 +34,6 @@ module_env.add_source_files(env.modules_sources,"nodes/mesh_data_instance.cpp")
 
 if os.path.isdir('../props'):
     module_env.add_source_files(env.modules_sources,"props/prop_data_mesh_data.cpp")
+
+if os.path.isdir('../props_2d'):
+    module_env.add_source_files(env.modules_sources,"props_2d/prop_2d_data_mesh_data.cpp")
