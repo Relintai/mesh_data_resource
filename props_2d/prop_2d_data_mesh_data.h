@@ -38,8 +38,8 @@ SOFTWARE.
 
 #include "../../props_2d/props/prop_2d_data.h"
 
-class Prop2DDataMeshData : public PropDataEntry {
-	GDCLASS(Prop2DDataMeshData, PropDataEntry);
+class Prop2DDataMeshData : public Prop2DDataEntry {
+	GDCLASS(Prop2DDataMeshData, Prop2DDataEntry);
 
 public:
 	Ref<MeshDataResource> get_mesh() const;
@@ -59,7 +59,7 @@ public:
 #endif
 
 	bool _processor_handles(Node *node);
-	void _processor_process(Ref<PropData> prop_data, Node *node, const Transform &transform);
+	void _processor_process(Ref<Prop2DData> prop_data, Node *node, const Transform &transform);
 	Node *_processor_get_node_for(const Transform &transform);
 
 	Prop2DDataMeshData();

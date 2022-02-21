@@ -69,7 +69,7 @@ bool Prop2DDataMeshData::_processor_handles(Node *node) {
 	return i;
 }
 
-void Prop2DDataMeshData::_processor_process(Ref<PropData> prop_data, Node *node, const Transform &transform) {
+void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *node, const Transform &transform) {
 	MeshDataInstance *i = Object::cast_to<MeshDataInstance>(node);
 
 	ERR_FAIL_COND(!i);
