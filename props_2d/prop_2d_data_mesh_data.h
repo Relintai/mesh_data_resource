@@ -25,7 +25,7 @@ SOFTWARE.
 
 #if PROPS_2D_PRESENT
 
-#include "../../props_2d/props/prop_data_entry.h"
+#include "../../props_2d/props/prop_2d_data_entry.h"
 #include "core/math/vector3.h"
 
 #include "scene/resources/texture.h"
@@ -36,7 +36,7 @@ SOFTWARE.
 #include "../../texture_packer/texture_packer.h"
 #endif
 
-#include "../../props_2d/props/prop_data.h"
+#include "../../props_2d/props/prop_2d_data.h"
 
 class Prop2DDataMeshData : public PropDataEntry {
 	GDCLASS(Prop2DDataMeshData, PropDataEntry);
