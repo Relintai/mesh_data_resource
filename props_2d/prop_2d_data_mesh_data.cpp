@@ -69,7 +69,7 @@ bool Prop2DDataMeshData::_processor_handles(Node *node) {
 	return i;
 }
 
-void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *node, const Transform &transform) {
+void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *node, const Transform2D &transform) {
 	MeshDataInstance *i = Object::cast_to<MeshDataInstance>(node);
 
 	ERR_FAIL_COND(!i);
@@ -78,11 +78,11 @@ void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *nod
 	m.instance();
 	m->set_mesh(i->get_mesh_data());
 	m->set_texture(i->get_texture());
-	m->set_transform(transform * i->get_transform());
+	//m->set_transform(transform * i->get_transform());
 	prop_data->add_prop(m);
 }
 
-Node *Prop2DDataMeshData::_processor_get_node_for(const Transform &transform) {
+Node *Prop2DDataMeshData::_processor_get_node_for(const Transform2D &transform) {
 	MeshDataInstance *i = memnew(MeshDataInstance);
 
 	Ref<SpatialMaterial> m;
@@ -91,7 +91,7 @@ Node *Prop2DDataMeshData::_processor_get_node_for(const Transform &transform) {
 	i->set_material(m);
 	i->set_texture(get_texture());
 	i->set_mesh_data(get_mesh());
-	i->set_transform(get_transform());
+	//i->set_transform(get_transform());
 
 	return i;
 }
