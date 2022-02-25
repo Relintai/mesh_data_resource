@@ -69,31 +69,38 @@ bool Prop2DDataMeshData::_processor_handles(Node *node) {
 	return i;
 }
 
-void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *node, const Transform2D &transform) {
+void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *node, const Transform2D &transform, Ref<Prop2DDataEntry> entry) {
 	MeshDataInstance *i = Object::cast_to<MeshDataInstance>(node);
 
 	ERR_FAIL_COND(!i);
 
 	Ref<Prop2DDataMeshData> m;
-	m.instance();
+
+	if (entry.is_valid()) {
+		m = entry;
+	} else {
+		m.instance();
+	}
+
 	m->set_mesh(i->get_mesh_data());
 	m->set_texture(i->get_texture());
-	//m->set_transform(transform * i->get_transform());
-	prop_data->add_prop(m);
+
+	Prop2DDataEntry::_processor_process(prop_data, node, transform, m);
 }
 
-Node *Prop2DDataMeshData::_processor_get_node_for(const Transform2D &transform) {
-	MeshDataInstance *i = memnew(MeshDataInstance);
+Node *Prop2DDataMeshData::_processor_get_node_for(const Transform2D &transform, Node *node) {
+	MeshDataInstance *i = nullptr;
 
-	Ref<SpatialMaterial> m;
-	m.instance();
+	if (!node) {
+		i = memnew(MeshDataInstance);
+	} else {
+		i = Object::cast_to<MeshDataInstance>(node);
+	}
 
-	i->set_material(m);
 	i->set_texture(get_texture());
 	i->set_mesh_data(get_mesh());
-	//i->set_transform(get_transform());
 
-	return i;
+	return Prop2DDataEntry::_processor_get_node_for(transform, i);
 }
 
 Prop2DDataMeshData::Prop2DDataMeshData() {
