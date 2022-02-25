@@ -25,6 +25,7 @@ SOFTWARE.
 #include "mesh_data_resource.h"
 #include "mesh_data_resource_collection.h"
 #include "nodes/mesh_data_instance.h"
+#include "nodes/mesh_data_instance_2d.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_plugin.h"
@@ -49,6 +50,7 @@ void register_mesh_data_resource_types() {
 	ClassDB::register_class<MeshDataResourceCollection>();
 
 	ClassDB::register_class<MeshDataInstance>();
+	ClassDB::register_class<MeshDataInstance2D>();
 
 #if PROPS_PRESENT
 	ClassDB::register_class<PropDataMeshData>();

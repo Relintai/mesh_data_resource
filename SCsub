@@ -31,6 +31,7 @@ if 'TOOLS_ENABLED' in env["CPPDEFINES"]:
     module_env.add_source_files(env.modules_sources,"plugin_gltf/editor_plugin_gltf_mdr.cpp")
 
 module_env.add_source_files(env.modules_sources,"nodes/mesh_data_instance.cpp")
+module_env.add_source_files(env.modules_sources,"nodes/mesh_data_instance_2d.cpp")
 
 if os.path.isdir('../props'):
     module_env.add_source_files(env.modules_sources,"props/prop_data_mesh_data.cpp")

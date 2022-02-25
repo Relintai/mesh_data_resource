@@ -290,6 +290,29 @@ void MeshDataResource::recompute_aabb() {
 	}
 
 	Variant arr = _arrays[Mesh::ARRAY_VERTEX];
+
+	PoolVector<Vector2> vertices_2d = arr;
+
+	if (vertices_2d.size() > 0) {
+		AABB aabb;
+
+#if VERSION_MAJOR < 4
+		PoolVector<Vector2>::Read r = vertices_2d.read();
+		const Vector2 *vtx = r.ptr();
+#else
+		const Vector2 *vtx = vertices.ptr();
+#endif
+		int len = vertices_2d.size();
+		aabb.position = Vector3(vtx[0].x, vtx[0].y, 0);
+
+		for (int i = 0; i < len; i++) {
+			aabb.expand_to(Vector3(vtx[i].x, vtx[i].y, 0));
+		}
+
+		_aabb = aabb;
+		return;
+	}
+
 	PoolVector<Vector3> vertices = arr;
 	int len = vertices.size();
 
