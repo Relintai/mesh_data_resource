@@ -45,31 +45,35 @@ SOFTWARE.
 #include "props_2d/prop_2d_data_mesh_data.h"
 #endif
 
-void register_mesh_data_resource_types() {
-	ClassDB::register_class<MeshDataResource>();
-	ClassDB::register_class<MeshDataResourceCollection>();
+void initialize_mesh_data_resource_module(ModuleInitializationLevel p_level) {
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+		GDREGISTER_CLASS(MeshDataResource);
+		GDREGISTER_CLASS(MeshDataResourceCollection);
 
-	ClassDB::register_class<MeshDataInstance>();
-	ClassDB::register_class<MeshDataInstance2D>();
+		GDREGISTER_CLASS(MeshDataInstance);
+		GDREGISTER_CLASS(MeshDataInstance2D);
 
 #if PROPS_PRESENT
-	ClassDB::register_class<PropDataMeshData>();
-	Ref<PropDataMeshData> processor = Ref<PropDataMeshData>(memnew(PropDataMeshData));
-	PropUtils::add_processor(processor);
+		GDREGISTER_CLASS(PropDataMeshData);
+		Ref<PropDataMeshData> processor = Ref<PropDataMeshData>(memnew(PropDataMeshData));
+		PropUtils::add_processor(processor);
 #endif
 
 #if PROPS_2D_PRESENT
-	ClassDB::register_class<Prop2DDataMeshData>();
-	Ref<Prop2DDataMeshData> prop_2d_processor = Ref<Prop2DDataMeshData>(memnew(Prop2DDataMeshData));
-	Prop2DUtils::add_processor(prop_2d_processor);
+		GDREGISTER_CLASS(Prop2DDataMeshData);
+		Ref<Prop2DDataMeshData> prop_2d_processor = Ref<Prop2DDataMeshData>(memnew(Prop2DDataMeshData));
+		Prop2DUtils::add_processor(prop_2d_processor);
 #endif
+	}
 
 #ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<EditorPluginColladaMdr>();
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		EditorPlugins::add_by_type<EditorPluginColladaMdr>();
 
-	EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
+		EditorPlugins::add_by_type<EditorPluginGLTFMdr>();
+	}
 #endif
 }
 
-void unregister_mesh_data_resource_types() {
+void initialize_mesh_data_resource_module(ModuleInitializationLevel p_level) {
 }
