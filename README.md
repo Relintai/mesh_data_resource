@@ -4,6 +4,14 @@ A c++ Godot engine module, that adds a resource, which contains raw mesh data fo
 
 The module also comes with importers (gltf, and collada for now), you can import 3d models as MeshDataResources with these.
 
+## Godot Version Support
+
+This branch tries to follow godot's master branch (as much as I have time).
+
+For different godot versions look at the other branches.
+
+Status for this branch: Update for 4.0 is work in progress.
+
 ## Optional Dependencies
 
 `https://github.com/Relintai/props`: If present, you also get a prop importer for MeshDataInstances.
