@@ -81,7 +81,7 @@ const String MDRImportPluginBase::BINDING_MDR_OPTIMIZATION_TYPE = "Off"
 #endif
 		;
 
-void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void MDRImportPluginBase::get_import_options(const String &p_path, List<ImportOption> *r_options, int p_preset) const {
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "import_type", PROPERTY_HINT_ENUM, BINDING_MDR_IMPORT_TYPE), MDRImportPluginBase::MDR_IMPORT_TIME_SINGLE));
 	r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "surface_handling", PROPERTY_HINT_ENUM, BINDING_MDR_SURFACE_HANDLING_TYPE), MDRImportPluginBase::MDR_SURFACE_HANDLING_TYPE_ONLY_USE_FIRST));
 
@@ -101,11 +101,11 @@ void MDRImportPluginBase::get_import_options(List<ImportOption> *r_options, int 
 	r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "save_copy_as_resource"), false));
 }
 
-bool MDRImportPluginBase::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
+bool MDRImportPluginBase::get_option_visibility(const String &p_path, const String &p_option, const HashMap<StringName, Variant> &p_options) const {
 	return true;
 }
 
-Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 	MDRImportPluginBase::MDRImportType type = static_cast<MDRImportPluginBase::MDRImportType>(static_cast<int>(p_options["import_type"]));
 
 	switch (type) {
@@ -121,12 +121,12 @@ Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, co
 			bool save_copy_as_resource = static_cast<bool>(p_options["save_copy_as_resource"]);
 
 			Ref<MeshDataResourceCollection> coll;
-			coll.instance();
+			coll.instantiate();
 
 			Ref<MeshDataResourceCollection> copy_coll;
 
 			if (save_copy_as_resource) {
-				copy_coll.instance();
+				copy_coll.instantiate();
 			}
 
 			process_node_multi(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata, coll, copy_coll);
@@ -135,7 +135,7 @@ Error MDRImportPluginBase::process_node(Node *n, const String &p_source_file, co
 				save_mdrcoll_copy_as_tres(p_source_file, copy_coll);
 			}
 
-			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
+			return ResourceSaver::save(coll, p_save_path + "." + get_save_extension());
 		}
 
 			//case MDR_IMPORT_TIME_SINGLE_WITH_SEPARATED_BONES: {
@@ -162,7 +162,7 @@ int MDRImportPluginBase::get_mesh_count(Node *n) {
 	return count;
 }
 
-Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 #if MESH_UTILS_PRESENT
 	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
 #endif
@@ -208,7 +208,7 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 					save_mdr_copy_as_tres(p_source_file, mdr, mdrs.size() > 1, mi);
 				}
 
-				ResourceSaver::save(p_save_path + "." + get_save_extension(), mdr);
+				ResourceSaver::save(mdr, p_save_path + "." + get_save_extension());
 			}
 
 			return Error::OK;
@@ -222,7 +222,7 @@ Error MDRImportPluginBase::process_node_single(Node *n, const String &p_source_f
 	return Error::ERR_PARSE_ERROR;
 }
 
-Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 #if MESH_UTILS_PRESENT
 	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
 #endif
@@ -239,7 +239,7 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 
 		if (Object::cast_to<MeshInstance>(c)) {
 			Ref<MeshDataResourceCollection> coll;
-			coll.instance();
+			coll.instantiate();
 
 			MeshInstance *mesh_inst = Object::cast_to<MeshInstance>(c);
 
@@ -275,7 +275,7 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 				node_name = node_name.to_lower();
 				String filename = p_source_file.get_basename() + "_" + node_name + "_" + String::num(j) + "." + get_save_extension();
 
-				Error err = ResourceSaver::save(filename, mdr);
+				Error err = ResourceSaver::save(mdr, filename);
 
 				ERR_CONTINUE(err != Error::OK);
 
@@ -296,7 +296,7 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 				//	save_mdrcoll_copy_as_tres(mdr_coll_name, coll);
 			}
 
-			return ResourceSaver::save(p_save_path + "." + get_save_extension(), coll);
+			return ResourceSaver::save(coll, p_save_path + "." + get_save_extension());
 		}
 
 		if (process_node_single_separated_bones(c, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata) == Error::OK) {
@@ -307,7 +307,7 @@ Error MDRImportPluginBase::process_node_single_separated_bones(Node *n, const St
 	return Error::ERR_PARSE_ERROR;
 }
 
-Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll, Ref<MeshDataResourceCollection> copy_coll, int node_count) {
+Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata, Ref<MeshDataResourceCollection> coll, Ref<MeshDataResourceCollection> copy_coll, int node_count) {
 #if MESH_UTILS_PRESENT
 	MDRImportPluginBase::MDROptimizationType optimization_type = static_cast<MDRImportPluginBase::MDROptimizationType>(static_cast<int>(p_options["optimization_type"]));
 #endif
@@ -358,7 +358,7 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 
 					filename += ".tres";
 
-					Error err = ResourceSaver::save(filename, mdr);
+					Error err = ResourceSaver::save(mdr, filename);
 					Ref<MeshDataResource> mdrtl = ResourceLoader::load(filename);
 					copy_coll->add_mdr(mdrtl);
 
@@ -378,7 +378,7 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 
 				filename += "." + get_save_extension();
 
-				Error err = ResourceSaver::save(filename, mdr);
+				Error err = ResourceSaver::save(mdr, filename);
 				Ref<MeshDataResource> mdrl = ResourceLoader::load(filename);
 				coll->add_mdr(mdrl);
 
@@ -396,7 +396,7 @@ Error MDRImportPluginBase::process_node_multi(Node *n, const String &p_source_fi
 	return Error::OK;
 }
 
-Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
+Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, const HashMap<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
 	MDRImportPluginBase::MDRSurfaceHandlingType surface_handling = static_cast<MDRImportPluginBase::MDRSurfaceHandlingType>(static_cast<int>(p_options["surface_handling"]));
 
 	Vector<Ref<MeshDataResource>> ret;
@@ -406,7 +406,7 @@ Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, 
 	if (mesh.is_valid()) {
 		if (surface_handling == MDR_SURFACE_HANDLING_TYPE_ONLY_USE_FIRST) {
 			Ref<MeshDataResource> mdr;
-			mdr.instance();
+			mdr.instantiate();
 
 			Array arrays = mesh->surface_get_arrays(0);
 
@@ -417,7 +417,7 @@ Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, 
 			ret.push_back(mdr);
 		} else if (surface_handling == MDR_SURFACE_HANDLING_TYPE_MERGE) {
 			Ref<MeshDataResource> mdr;
-			mdr.instance();
+			mdr.instantiate();
 
 			for (int i = 0; i < mesh->get_surface_count(); ++i) {
 				Array arrays = mesh->surface_get_arrays(i);
@@ -430,7 +430,7 @@ Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, 
 		} else if (surface_handling == MDR_SURFACE_HANDLING_TYPE_SEPARATE_MDRS) {
 			for (int i = 0; i < mesh->get_surface_count(); ++i) {
 				Ref<MeshDataResource> mdr;
-				mdr.instance();
+				mdr.instantiate();
 
 				Array arrays = mesh->surface_get_arrays(i);
 
@@ -446,17 +446,17 @@ Vector<Ref<MeshDataResource>> MDRImportPluginBase::get_meshes(MeshInstance *mi, 
 	return ret;
 }
 
-Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
+Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const HashMap<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
 	ERR_FAIL_COND_V(arrs.size() < VS::ARRAY_MAX, Ref<MeshDataResource>());
 
 	Ref<ArrayMesh> mesh;
-	mesh.instance();
+	mesh.instantiate();
 	mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrs);
 
 	ERR_FAIL_COND_V(mesh->get_surface_count() == 0, Ref<MeshDataResource>());
 
 	Ref<MeshDataResource> mdr;
-	mdr.instance();
+	mdr.instantiate();
 
 	Array arrays = mesh->surface_get_arrays(0);
 
@@ -466,10 +466,10 @@ Ref<MeshDataResource> MDRImportPluginBase::get_mesh_arrays(Array &arrs, const Ma
 	return mdr;
 }
 
-void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh> mesh, const Map<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
+void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh> mesh, const HashMap<StringName, Variant> &p_options, MeshDataResource::ColliderType collider_type, Vector3 scale) {
 	if (collider_type == MeshDataResource::COLLIDER_TYPE_TRIMESH_COLLISION_SHAPE) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 		Ref<Shape> shape = m->create_trimesh_shape();
@@ -479,7 +479,7 @@ void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh
 		}
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_SINGLE_CONVEX_COLLISION_SHAPE) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 		Ref<Shape> shape = mesh->create_convex_shape();
@@ -490,10 +490,11 @@ void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh
 
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_MULTIPLE_CONVEX_COLLISION_SHAPES) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
-		Vector<Ref<Shape>> shapes = mesh->convex_decompose();
+		Mesh::ConvexDecompositionSettings settings;
+		Vector<Ref<Shape>> shapes = mesh->convex_decompose(settings);
 
 		for (int j = 0; j < shapes.size(); ++j) {
 			scale_shape(shapes[j], scale);
@@ -504,11 +505,11 @@ void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh
 		}
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_BOX) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 		Ref<BoxShape> shape;
-		shape.instance();
+		shape.instantiate();
 
 		AABB aabb = m->get_aabb();
 		Vector3 size = aabb.get_size();
@@ -528,11 +529,11 @@ void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh
 		mdr->add_collision_shape(t, shape);
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CAPSULE) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 		Ref<CapsuleShape> shape;
-		shape.instance();
+		shape.instantiate();
 
 		AABB aabb = m->get_aabb();
 		Vector3 size = aabb.get_size();
@@ -549,11 +550,11 @@ void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh
 		mdr->add_collision_shape(t, shape);
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_CYLINDER) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 		Ref<CylinderShape> shape;
-		shape.instance();
+		shape.instantiate();
 
 		AABB aabb = m->get_aabb();
 		Vector3 size = aabb.get_size();
@@ -570,11 +571,11 @@ void MDRImportPluginBase::add_colliders(Ref<MeshDataResource> mdr, Ref<ArrayMesh
 		mdr->add_collision_shape(t, shape);
 	} else if (collider_type == MeshDataResource::COLLIDER_TYPE_APPROXIMATED_SPHERE) {
 		Ref<ArrayMesh> m;
-		m.instance();
+		m.instantiate();
 		m->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, mdr->get_array());
 
 		Ref<SphereShape> shape;
-		shape.instance();
+		shape.instantiate();
 
 		AABB aabb = m->get_aabb();
 		Vector3 size = aabb.get_size();
@@ -756,14 +757,14 @@ Array MDRImportPluginBase::slice_mesh_bone(const Array &arr, int bone_idx) {
 	return resarrs;
 }
 
-Array MDRImportPluginBase::apply_transforms(Array &array, const Map<StringName, Variant> &p_options) {
+Array MDRImportPluginBase::apply_transforms(Array &array, const HashMap<StringName, Variant> &p_options) {
 	Vector3 offset = p_options["offset"];
 	Vector3 rotation = p_options["rotation"];
 	Vector3 scale = p_options["scale"];
 
 	ERR_FAIL_COND_V(array.size() < VS::ARRAY_MAX, array);
 
-	Transform transform = Transform(Basis(rotation).scaled(scale), offset);
+	Transform3D transform = Transform3D(Basis::from_euler(rotation).scaled(scale), offset);
 
 	PoolVector3Array verts = array.get(Mesh::ARRAY_VERTEX);
 
@@ -889,7 +890,7 @@ void MDRImportPluginBase::save_mdr_copy_as_tres(const String &p_source_file, con
 
 	sp += ".tres";
 
-	ResourceSaver::save(sp, res);
+	ResourceSaver::save(res, sp);
 }
 void MDRImportPluginBase::save_mdrcoll_copy_as_tres(const String &p_source_file, const Ref<MeshDataResourceCollection> &res) {
 	String sp = p_source_file;
@@ -897,7 +898,7 @@ void MDRImportPluginBase::save_mdrcoll_copy_as_tres(const String &p_source_file,
 	sp.resize(sp.size() - ext.size());
 	sp += ".tres";
 
-	ResourceSaver::save(sp, res);
+	ResourceSaver::save(res, sp);
 }
 
 MDRImportPluginBase::MDRImportPluginBase() {

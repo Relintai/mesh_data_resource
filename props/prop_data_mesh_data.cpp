@@ -75,7 +75,7 @@ void PropDataMeshData::_processor_process(Ref<PropData> prop_data, Node *node, c
 	ERR_FAIL_COND(!i);
 
 	Ref<PropDataMeshData> m;
-	m.instance();
+	m.instantiate();
 	m->set_mesh(i->get_mesh_data());
 	m->set_texture(i->get_texture());
 	m->set_transform(transform * i->get_transform());
@@ -86,7 +86,7 @@ Node *PropDataMeshData::_processor_get_node_for(const Transform &transform) {
 	MeshDataInstance *i = memnew(MeshDataInstance);
 
 	Ref<SpatialMaterial> m;
-	m.instance();
+	m.instantiate();
 
 	i->set_material(m);
 	i->set_texture(get_texture());

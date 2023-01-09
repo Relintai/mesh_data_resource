@@ -29,15 +29,15 @@ SOFTWARE.
 #include "core/string/ustring.h"
 #include "core/variant/array.h"
 #else
-#include "core/ustring.h"
 #include "core/array.h"
+#include "core/ustring.h"
 #endif
 
 #include "../plugin/mdr_import_plugin_base.h"
 
 #include "core/io/resource_saver.h"
 #include "core/math/basis.h"
-#include "core/math/transform.h"
+#include "core/math/transform_3d.h"
 #include "editor/import/editor_import_plugin.h"
 #include "scene/main/node.h"
 #include "scene/resources/mesh.h"
@@ -69,13 +69,13 @@ public:
 	virtual int get_preset_count() const;
 	virtual String get_preset_name(int p_idx) const;
 
-	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
+	virtual Error import(const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata = nullptr) override;
 
 	EditorImportColladaMdr();
 	~EditorImportColladaMdr();
 
 private:
-	Ref<EditorSceneImporterCollada> _importer;
+	Ref<EditorSceneFormatImporterCollada> _importer;
 };
 
 #endif

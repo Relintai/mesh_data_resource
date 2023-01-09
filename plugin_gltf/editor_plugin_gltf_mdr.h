@@ -40,13 +40,12 @@ class EditorPluginGLTFMdr : public EditorPlugin {
 	GDCLASS(EditorPluginGLTFMdr, EditorPlugin);
 
 public:
-	EditorPluginGLTFMdr(EditorNode *node);
+	EditorPluginGLTFMdr();
 
 protected:
 	void _notification(int p_what);
 
 private:
-	EditorNode *_node;
 	Ref<EditorImportGLTFMdr> _importer;
 };
 

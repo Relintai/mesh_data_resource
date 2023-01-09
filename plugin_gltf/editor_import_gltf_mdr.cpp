@@ -55,7 +55,7 @@ String EditorImportGLTFMdr::get_preset_name(int p_idx) const {
 	return "";
 }
 
-Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 	//MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Error erri;
@@ -79,7 +79,7 @@ Error EditorImportGLTFMdr::import(const String &p_source_file, const String &p_s
 }
 
 EditorImportGLTFMdr::EditorImportGLTFMdr() {
-	_importer.instance();
+	_importer.instantiate();
 }
 
 EditorImportGLTFMdr::~EditorImportGLTFMdr() {

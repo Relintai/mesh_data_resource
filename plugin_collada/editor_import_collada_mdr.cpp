@@ -54,7 +54,7 @@ String EditorImportColladaMdr::get_preset_name(int p_idx) const {
 	return "";
 }
 
-Error EditorImportColladaMdr::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error EditorImportColladaMdr::import(const String &p_source_file, const String &p_save_path, const HashMap<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 	//MeshDataResource::ColliderType collider_type = static_cast<MeshDataResource::ColliderType>(static_cast<int>(p_options["collider_type"]));
 
 	Error erri;
@@ -73,12 +73,12 @@ Error EditorImportColladaMdr::import(const String &p_source_file, const String &
 
 	Error err = process_node(n, p_source_file, p_save_path, p_options, r_platform_variants, r_gen_files, r_metadata);
 
-	n->queue_delete();
+	n->queue_free();
 	return err;
 }
 
 EditorImportColladaMdr::EditorImportColladaMdr() {
-	_importer.instance();
+	_importer.instantiate();
 }
 
 EditorImportColladaMdr::~EditorImportColladaMdr() {

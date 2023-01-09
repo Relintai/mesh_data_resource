@@ -19,7 +19,7 @@
 #include "../../texture_packer/texture_resource/packer_image_resource.h"
 #endif
 
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 
 bool MeshDataInstance::get_snap_to_mesh() const {
 	return _snap_to_mesh;
@@ -40,7 +40,7 @@ Ref<MeshDataResource> MeshDataInstance::get_mesh_data() {
 }
 void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
 	if (_mesh.is_valid()) {
-		_mesh->disconnect("changed", this, "refresh");
+		_mesh->disconnect("changed", Callable(this, "refresh"));
 	}
 
 	_mesh = mesh;
@@ -48,7 +48,7 @@ void MeshDataInstance::set_mesh_data(const Ref<MeshDataResource> &mesh) {
 	refresh();
 
 	if (_mesh.is_valid()) {
-		_mesh->connect("changed", this, "refresh");
+		_mesh->connect("changed", Callable(this, "refresh"));
 	}
 
 	emit_signal("mesh_data_resource_changed", _mesh);
@@ -82,8 +82,8 @@ AABB MeshDataInstance::get_aabb() const {
 	return _mesh->get_aabb();
 }
 
-PoolVector<Face3> MeshDataInstance::get_faces(uint32_t p_usage_flags) const {
-	PoolVector<Face3> faces;
+Vector<Face3> MeshDataInstance::get_faces(uint32_t p_usage_flags) const {
+	Vector<Face3> faces;
 
 	if (_mesh.is_valid()) {
 		Array arrs = _mesh->get_array_const();
@@ -92,15 +92,15 @@ PoolVector<Face3> MeshDataInstance::get_faces(uint32_t p_usage_flags) const {
 			return faces;
 		}
 
-		PoolVector<Vector3> vertices = arrs[Mesh::ARRAY_VERTEX];
-		PoolVector<int> indices = arrs[Mesh::ARRAY_INDEX];
+		Vector<Vector3> vertices = arrs[Mesh::ARRAY_VERTEX];
+		Vector<int> indices = arrs[Mesh::ARRAY_INDEX];
 
 		int ts = indices.size() / 3;
 		faces.resize(ts);
 
-		PoolVector<Face3>::Write w = faces.write();
-		PoolVector<Vector3>::Read rv = vertices.read();
-		PoolVector<int>::Read ri = indices.read();
+		Face3 *w = faces.ptrw();
+		const Vector3 *rv = vertices.ptr();
+		//const int *ri = indices.ptr();
 
 		for (int i = 0; i < ts; i++) {
 			int im3 = (i * 3);
@@ -109,8 +109,6 @@ PoolVector<Face3> MeshDataInstance::get_faces(uint32_t p_usage_flags) const {
 				w[i].vertex[j] = rv[indices[im3 + j]];
 			}
 		}
-
-		w.release();
 	}
 
 	return faces;
@@ -122,12 +120,12 @@ void MeshDataInstance::refresh() {
 	}
 
 	if (_mesh_rid == RID()) {
-		_mesh_rid = VisualServer::get_singleton()->mesh_create();
+		_mesh_rid = RS::get_singleton()->mesh_create();
 
-		VS::get_singleton()->instance_set_base(get_instance(), _mesh_rid);
+		RS::get_singleton()->instance_set_base(get_instance(), _mesh_rid);
 	}
 
-	VisualServer::get_singleton()->mesh_clear(_mesh_rid);
+	RS::get_singleton()->mesh_clear(_mesh_rid);
 
 	if (!_mesh.is_valid()) {
 		return;
@@ -139,16 +137,16 @@ void MeshDataInstance::refresh() {
 		return;
 	}
 
-	PoolVector<Vector3> vertices = arr[Mesh::ARRAY_VERTEX];
+	Vector<Vector3> vertices = arr[Mesh::ARRAY_VERTEX];
 
 	if (vertices.size() == 0) {
 		return;
 	}
 
-	VisualServer::get_singleton()->mesh_add_surface_from_arrays(_mesh_rid, VisualServer::PRIMITIVE_TRIANGLES, arr);
+	RS::get_singleton()->mesh_add_surface_from_arrays(_mesh_rid, RS::PRIMITIVE_TRIANGLES, arr);
 
 	if (_material.is_valid()) {
-		VisualServer::get_singleton()->mesh_surface_set_material(_mesh_rid, 0, _material->get_rid());
+		RS::get_singleton()->mesh_surface_set_material(_mesh_rid, 0, _material->get_rid());
 	}
 }
 
@@ -183,7 +181,7 @@ void MeshDataInstance::setup_material_texture() {
 			Ref<Image> i = r->get_data();
 
 			Ref<ImageTexture> tex;
-			tex.instance();
+			tex.instantiate();
 #if VERSION_MAJOR < 4
 			tex->create_from_image(i, 0);
 #else
@@ -204,7 +202,7 @@ void MeshDataInstance::setup_material_texture() {
 
 void MeshDataInstance::free_meshes() {
 	if (_mesh_rid != RID()) {
-		VS::get_singleton()->free(_mesh_rid);
+		RS::get_singleton()->free(_mesh_rid);
 		_mesh_rid = RID();
 	}
 }

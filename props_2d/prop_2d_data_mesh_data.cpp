@@ -79,7 +79,7 @@ void Prop2DDataMeshData::_processor_process(Ref<Prop2DData> prop_data, Node *nod
 	if (entry.is_valid()) {
 		m = entry;
 	} else {
-		m.instance();
+		m.instantiate();
 	}
 
 	m->set_mesh(i->get_mesh_data());

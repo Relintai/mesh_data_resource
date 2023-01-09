@@ -25,7 +25,7 @@ SOFTWARE.
 void EditorPluginGLTFMdr::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE:
-			_importer.instance();
+			_importer.instantiate();
 
 			add_import_plugin(_importer);
 
@@ -39,6 +39,5 @@ void EditorPluginGLTFMdr::_notification(int p_what) {
 	}
 }
 
-EditorPluginGLTFMdr::EditorPluginGLTFMdr(EditorNode *node) {
-	_node = node;
+EditorPluginGLTFMdr::EditorPluginGLTFMdr() {
 }

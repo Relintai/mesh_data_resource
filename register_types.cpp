@@ -75,5 +75,5 @@ void initialize_mesh_data_resource_module(ModuleInitializationLevel p_level) {
 #endif
 }
 
-void initialize_mesh_data_resource_module(ModuleInitializationLevel p_level) {
+void uninitialize_mesh_data_resource_module(ModuleInitializationLevel p_level) {
 }

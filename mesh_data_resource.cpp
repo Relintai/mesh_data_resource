@@ -28,10 +28,15 @@ SOFTWARE.
 #include "core/variant/variant.h"
 
 #define PoolVector Vector
-#define POOL_INT_ARRAY PACKED_INT_ARRAY
+#define POOL_INT_ARRAY PACKED_INT32_ARRAY
 #else
 #include "core/variant.h"
 #endif
+
+#define PoolVector3Array PackedVector3Array
+#define PoolRealArray PackedFloat32Array
+#define PoolColorArray PackedColorArray
+#define PoolVector2Array PackedVector2Array
 
 const String MeshDataResource::BINDING_STRING_COLLIDER_TYPE = "None,Trimesh Collision Shape,Single Convex Collision Shape,Multiple Convex Collision Shapes,Approximated Box,Approximated Capsule,Approximated Cylinder,Approximated Sphere";
 
@@ -300,7 +305,7 @@ void MeshDataResource::recompute_aabb() {
 		PoolVector<Vector2>::Read r = vertices_2d.read();
 		const Vector2 *vtx = r.ptr();
 #else
-		const Vector2 *vtx = vertices.ptr();
+		const Vector2 *vtx = vertices_2d.ptr();
 #endif
 		int len = vertices_2d.size();
 		aabb.position = Vector3(vtx[0].x, vtx[0].y, 0);

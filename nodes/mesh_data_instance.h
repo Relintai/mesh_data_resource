@@ -29,7 +29,7 @@ SOFTWARE.
 #if VERSION_MAJOR < 4
 #include "scene/3d/visual_instance.h"
 #else
-#include "scene/3d/node_3d.h"
+#include "scene/3d/visual_instance_3d.h"
 
 #define SpatialMaterial StandardMaterial3D
 #define Spatial Node3D
@@ -42,8 +42,8 @@ SOFTWARE.
 
 class PropInstance;
 
-class MeshDataInstance : public GeometryInstance {
-	GDCLASS(MeshDataInstance, GeometryInstance);
+class MeshDataInstance : public GeometryInstance3D {
+	GDCLASS(MeshDataInstance, GeometryInstance3D);
 
 public:
 	bool get_snap_to_mesh() const;
@@ -62,7 +62,7 @@ public:
 	void set_material(const Ref<Material> &mat);
 
 	AABB get_aabb() const;
-	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	Vector<Face3> get_faces(uint32_t p_usage_flags) const;
 
 	void refresh();
 	void setup_material_texture();

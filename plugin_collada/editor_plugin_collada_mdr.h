@@ -40,13 +40,12 @@ class EditorPluginColladaMdr : public EditorPlugin {
 	GDCLASS(EditorPluginColladaMdr, EditorPlugin);
 
 public:
-	EditorPluginColladaMdr(EditorNode *node);
+	EditorPluginColladaMdr();
 
 protected:
 	void _notification(int p_what);
 
 private:
-	EditorNode *_node;
 	Ref<EditorImportColladaMdr> _importer;
 };
 
